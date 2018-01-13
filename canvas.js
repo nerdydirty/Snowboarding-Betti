@@ -1,6 +1,7 @@
 var Game = {
     canvas: false,
     context: false,
+    running: true,
     score: 0,
     init: function(){
         Game.canvas = document.getElementById('canvas');
@@ -57,9 +58,15 @@ var Game = {
         }
     },
     loop: function(){
-        Game.update();
-        Game.render();
-        requestAnimationFrame(Game.loop);
+            Game.update();
+        if (Game.running){
+            
+            Game.render();
+            window.requestAnimationFrame(Game.loop);
+        }
+    },
+    pause: function(){
+        Game.running = false;
     },
     render: function(){
         
@@ -105,6 +112,9 @@ var Game = {
             return false;
         
         return true;
+    },
+    restart: function(){
+        Game.running = true;
     },
 
     //Asset Manager:
@@ -191,12 +201,15 @@ var Game = {
                 for (var i=0; i<Game.entities.badElements.list.length; i++){
                     if(Game.entities.betti.collisionWithElement(Game.entities.badElements.list[i])){
                         console.log('Kollision! mit Element ' + Game.entities.badElements.list[i]);
+                        Game.entities.badElements.handleCollision(Game.entities.badElements.list[i]);
+                        break;
                     }
                 }
                 for (var i=0; i<Game.entities.goodElements.list.length; i++){
                     if(Game.entities.betti.collisionWithElement(Game.entities.goodElements.list[i])){
                         console.log('Kollision! mit Goodi ' + Game.entities.goodElements.list[i]);
                         Game.entities.goodElements.handleCollision(Game.entities.goodElements.list[i]);
+                                            
                     }
                 }
             }
@@ -349,7 +362,29 @@ var Game = {
                 badElement.height = Game.assets.getAsset(badElement.imgUrl).height;
                 
                 this.list.push(badElement);
-            }
+            },
+            handleCollision: function(element){
+                //Spielabbruch
+                Game.pause();
+                Game.draw.drawText("Game over", 650, 350, 130, '#ff0000');
+                console.log("wo ist es hin?");
+                //Game.scenes.current = 'landingPage';
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/StartButton.png'),(Game.canvas.width-123)/2, (Game.canvas.height-123)/2);
+                Game.restart;
+                console.log ("geht es weiter?");
+                if (Game.input.clicked == true){
+                    var xLeft = Game.canvas.width/2-62;
+                    var xRight = Game.canvas.width/2+62;
+                    var yTop = Game.canvas.height/2-62;
+                    var yBottom = Game.canvas.height/2+62;
+                    console.log (xLeft + ", " + xRight + ", " + yTop + ", " + yBottom);
+                    if(Game.input.x >= xLeft && Game.input.x <= xRight && Game.input.y >= yTop && Game.input.y <= yBottom){
+                        Game.scenes.current = 'loading';
+                    }
+                }
+                Game.input.clicked = false;
+                
+            },
         },
         goodElements:{
             list: new Array(),
@@ -414,7 +449,6 @@ var Game = {
             handleCollision: function(element){
                 //Punkte hochzählen
                 Game.score += 1;
-                
                 this.removeGoodElement(element);  
             }
         }
