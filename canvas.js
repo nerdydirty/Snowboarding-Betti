@@ -1,7 +1,8 @@
 var Game = {
     canvas: false,
     context: false,
-    running: true,
+    requestId: 0,
+    running: false,
     score: 0,
     init: function(){
         Game.canvas = document.getElementById('canvas');
@@ -18,11 +19,23 @@ var Game = {
                     window.setTimeout(callback, 1000 / 60);
                 };
         })();
+        window.cancelAnimationFrame = ( function(){
+            return window.cancelAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                clearTimeout
+        })();
         
        //Assets laden:
         Game.assets.addRessource('sprites/png/betti_1.png');
+        Game.assets.addRessource('sprites/png/betti_2.png');
+        Game.assets.addRessource('sprites/png/betti_4.png');
         Game.assets.addRessource('sprites/png/cassette_mini.png');
         Game.assets.addRessource('sprites/png/headphones.png');
+        Game.assets.addRessource('sprites/png/tree-stump.png');
+        Game.assets.addRessource('sprites/png/tree.png');
         Game.assets.addRessource('sprites/png/rock2.png');
         Game.assets.addRessource('sprites/png/rock.png');
         Game.assets.addRessource('sprites/png/Donut_mini.png');
@@ -58,17 +71,29 @@ var Game = {
         }
     },
     loop: function(){
-            Game.update();
-        if (Game.running){
-            
-            Game.render();
-            window.requestAnimationFrame(Game.loop);
-        }
+        Game.requestId = window.requestAnimationFrame(Game.loop);
+        Game.running = true;
+        Game.render();
+        Game.update();
+        console.log("Frame is running: "+ Game.requestId);
+        console.log("running: "+ Game.running);
     },
     pause: function(){
+        console.log("Frame stops: "+ Game.requestId);
+        cancelAnimationFrame(Game.requestId);
         Game.running = false;
     },
+    restart: function(){
+        Game.scenes.current = 'landingPage';
+        Game.entities.badElements.list = new Array();
+        Game.entities.goodElements.list = new Array();
+        Game.entities.betti.init();
+        Game.loop();
+    },
     render: function(){
+        if(Game.scenes.current == 'highscore'){
+            Game.scenes.highscore.render();
+        }
         
         if(Game.scenes.current == 'loading'){
             Game.scenes.loading.render();
@@ -112,9 +137,6 @@ var Game = {
             return false;
         
         return true;
-    },
-    restart: function(){
-        Game.running = true;
     },
 
     //Asset Manager:
@@ -164,10 +186,14 @@ var Game = {
             render: function(){
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#429FDD');
                 Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2,Game.canvas.height/2-123,50,'#FFFFFF');
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/StartButton.png'),(Game.canvas.width-123)/2, (Game.canvas.height-123)/2);
+                this.startButton();
+                this.inputField();
+                Game.pause();
+                window.removeEventListener('mousedown', Game.input.click,false);
             },
             update: function(){
-                if (Game.input.clicked == true){
+                
+                /*if (Game.input.clicked == true){
                     var xLeft = Game.canvas.width/2-62;
                     var xRight = Game.canvas.width/2+62;
                     var yTop = Game.canvas.height/2-62;
@@ -177,8 +203,38 @@ var Game = {
                         Game.scenes.current = 'game';
                     }
                 }
-                Game.input.clicked = false;
-            } 
+                Game.input.clicked = false;*/
+            },
+            startButton: function (){
+                var start = Game.assets.getAsset('sprites/png/StartButton.png');
+                start.id = 'startButton';
+                start.style.position = 'fixed';
+                start.style.left = (Game.canvas.width/2-62)+'px';
+                start.style.top = (Game.canvas.height/2-62)+'px';
+                start.addEventListener('click',this.start, false);
+                document.body.appendChild(start);
+            },
+            start: function(event){
+                var name = document.getElementById('playersName').value;
+                console.log(document.getElementById('playersName').value);
+                console.log ("button wurde geklickt");
+                localStorage.setItem('player', name);
+                Game.scenes.current = 'game';
+                document.body.removeChild(document.getElementById('startButton'));
+                document.body.removeChild(document.getElementById('playersName'));
+                Game.loop();
+            },
+            inputField: function (){
+                var input = document.createElement('input');
+                input.id = 'playersName';
+                input.type = 'text';
+                input.style.position = 'fixed';
+                input.style.left = (Game.canvas.width/2+100)+'px';
+                input.style.top = (Game.canvas.height/2)+'px';
+                input.placeholder = 'Dein Name';
+                document.body.appendChild(input);
+                
+            }
         },
         game: {
             step: 3,
@@ -213,6 +269,20 @@ var Game = {
                     }
                 }
             }
+        },
+        highscore:{
+            //list: new Array(),
+            render: function(){
+                Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#455E7F');
+                Game.draw.drawText('Highscore',100,100,100,'#FFFFFF');
+                Game.draw.drawText('Rank',100,200,50,'#FFFFFF');
+                Game.draw.drawText('Points',300,200,50,'#FFFFFF');
+                Game.draw.drawText('Name',500,200,50,'#FFFFFF');
+                Game.draw.drawText('Date',700,200,50,'#FFFFFF');
+            },
+            update: function(){
+                
+            }
         }
     },
     //Enities
@@ -242,6 +312,15 @@ var Game = {
             height: function(){
                 return Game.assets.getAsset('sprites/png/betti_1.png').height;
             },
+            init: function(){
+                this.step = 3;
+                this.x= 100;
+                this.y= 610;
+                this.startY= 610;
+                this.jumping= false;
+                this.landing= false;
+                this.jumpHeight= 60;
+            },
             step: 3,
             x: 100,
             y: 610,
@@ -258,11 +337,22 @@ var Game = {
                 }
             },
             render: function(){
+                //Game.draw.drawRect(this.x, this.y, this.width(), this.height(), '#fff');
                 
-                Game.draw.drawRect(this.x, this.y, this.width(), this.height(), '#fff');
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'), Game.entities.betti.x, Game.entities.betti.y);
+                if (this.jumping){
+                    Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_2.png'), Game.entities.betti.x, Game.entities.betti.y);
+                }else if(this.landing){
+                    Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_4.png'), Game.entities.betti.x, Game.entities.betti.y);
+                }else {
+                    Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'), Game.entities.betti.x, Game.entities.betti.y);
+                }
             },
             update: function(){
+                
+                var pixel = Game.context.getImageData(this.x, this.y, 1,1);
+                console.log ('Bettis x: '+this.x+ ', Bettis y: '+this.y+ 'Transparenz: ' +pixel.data[3]);
+                
+                
                 if(this.x < Game.canvas.width-(Game.canvas.width/3*2)){
                     this.x += this.step;
                 }
@@ -289,7 +379,7 @@ var Game = {
                     this.jumpHeight++;
                 }
             },
-            collisionWithElement(element){
+            collisionWithElement: function(element){
                 //TODO: Kollisionsberechnung auf Pixelgenau umstellen. Vorerst BoundingBox Methode ausreichend
                 //Grundlage: http://www.virtual-maxim.de/pixelgenaue-kollisionserkennung/
 
@@ -316,7 +406,7 @@ var Game = {
                 //draw list und nicht nur ein element
                 for (var i = 0; i<this.list.length; i++){
                     
-                    Game.draw.drawRect(this.list[i].x, this.list[i].y, this.list[i].width, this.list[i].height, '#ff0000');
+                    //Game.draw.drawRect(this.list[i].x, this.list[i].y, this.list[i].width, this.list[i].height, '#ff0000');
                     Game.draw.drawImage(Game.assets.getAsset(this.list[i].imgUrl),this.list[i].x, this.list[i].y);
                 }
                 
@@ -341,12 +431,18 @@ var Game = {
             //Funktion: hinzufügen eines neuen badElements
             addBadElement: function(){
                 var badElement = {};
-                var typ = Math.floor((Math.random()*2)+1);
+                var typ = Math.floor((Math.random()*4)+1);
                 if (typ == 1){
                   badElement.imgUrl = 'sprites/png/rock.png';  
                 }
                 if (typ == 2){
                   badElement.imgUrl = 'sprites/png/rock2.png';  
+                }
+                if (typ == 3){
+                    badElement.imgUrl = 'sprites/png/tree-stump.png'
+                }
+                if (typ == 4){
+                    badElement.imgUrl = 'sprites/png/tree.png'
                 }
                 if (this.list.length == 0){
                     badElement.x = Game.canvas.width+10;
@@ -366,23 +462,8 @@ var Game = {
             handleCollision: function(element){
                 //Spielabbruch
                 Game.pause();
-                Game.draw.drawText("Game over", 650, 350, 130, '#ff0000');
-                console.log("wo ist es hin?");
-                //Game.scenes.current = 'landingPage';
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/StartButton.png'),(Game.canvas.width-123)/2, (Game.canvas.height-123)/2);
-                Game.restart;
-                console.log ("geht es weiter?");
-                if (Game.input.clicked == true){
-                    var xLeft = Game.canvas.width/2-62;
-                    var xRight = Game.canvas.width/2+62;
-                    var yTop = Game.canvas.height/2-62;
-                    var yBottom = Game.canvas.height/2+62;
-                    console.log (xLeft + ", " + xRight + ", " + yTop + ", " + yBottom);
-                    if(Game.input.x >= xLeft && Game.input.x <= xRight && Game.input.y >= yTop && Game.input.y <= yBottom){
-                        Game.scenes.current = 'loading';
-                    }
-                }
-                Game.input.clicked = false;
+                Game.draw.drawText("Game over", 80, 350, 100, '#ff0000');
+                Game.draw.drawText("Press Return for Restart", 80, 450, 100, '#ff0000');
                 
             },
         },
@@ -468,10 +549,16 @@ var Game = {
         },
         keydown: function(e){
             //Werten erstmal nur einen Tastendruck auf einmal aus - nicht mehrer Tasten in Kombination TODO
+            console.log (e.keyCode);
             switch (e.keyCode){
                 case 32://Leertaste
                     console.log("Leertaste gedrückt");
                     Game.entities.betti.jump();
+                    break;
+                case 13://Return
+                    if (!Game.running){
+                      Game.restart();  
+                    }
                     break;
                 case 37: //Pfeil links
                     console.log("Pfeiltaste links gedrückt");
