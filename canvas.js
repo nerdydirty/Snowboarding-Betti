@@ -4,7 +4,41 @@ var Game = {
     requestId: 0,
     running: false,
     score: 0,
+    backgroundGamesound:{},
     init: function(){
+        var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+        var open = indexedDB.open("snowboarding-DB",1);
+        open.onupgradeneeded = function(){
+            var db = open.result;
+            db.createObjectStore("players",{keyPath:"id", autoIncrement: true});
+        };
+        
+        open.onsuccess = function(){
+            var db = open.result;
+            var tx = db.transaction("players","readwrite");
+            var store = tx.objectStore("players");
+            var allPlayers = store.getAll();
+            allPlayers.onsuccess = function(){
+                for (var i = 0; i<allPlayers.result.length; i++){
+                    var player = allPlayers.result[i];
+                    Game.scenes.highscore.list.push(player);
+                }
+                Game.scenes.highscore.list.sort(function(a,b) {
+                    if (a.score > b.score) {
+                        return -1;
+                    }
+                    if (b.score > a.score) {
+                        return 1;
+                    }
+                    return 0;
+                });
+            }
+
+            tx.oncomplete = function(){
+                db.close();
+            }
+        };
+        
         Game.canvas = document.getElementById('canvas');
         Game.context = Game.canvas.getContext('2d');
         Game.resize();
@@ -27,6 +61,19 @@ var Game = {
                 window.msRequestAnimationFrame ||
                 clearTimeout
         })();
+        //Audio laden
+        Game.backgroundGamesound = new Audio('audio/background.mp3');
+        Game.backgroundGamesound.loop = true;
+        //Game.backgroundGamesound.play();
+        Game.entities.betti.jumpSound = new Audio('audio/Jump-SoundBible.com-1007297584.mp3');
+        Game.entities.betti.jumpSound.loop = false;
+        Game.entities.betti.cassetteSound = new Audio('audio/bavarianFinestWoodis.mp3');
+        Game.entities.betti.cassetteSound.loop = false;
+        Game.entities.betti.donutSound = new Audio('audio/Smack-Lips-SoundBible.com-411304180.mp3');
+        Game.entities.betti.donutSound.playbackRate = 3.0;
+        Game.entities.betti.crashSound = new Audio('audio/Female-Sigh-SoundBible.com-675137452.mp3');
+        Game.entities.betti.crashSound.loop = false;
+        
         
        //Assets laden:
         Game.assets.addRessource('sprites/png/betti_1.png');
@@ -45,6 +92,8 @@ var Game = {
         Game.assets.addRessource('sprites/png/mountains_0.png');
         //Game.assets.addRessource('sprites/png/loadingText_bigPic.jpg');
         Game.assets.addRessource('sprites/png/StartButton.png');
+        Game.assets.addRessource('sprites/png/trophy.png');
+        Game.assets.addRessource('sprites/png/landingPageButton.png');
         //Bis hier hin wird das Bild zunächst auf eine Downloadliste gesetzt
         Game.assets.download();
        
@@ -82,31 +131,38 @@ var Game = {
         console.log("Frame stops: "+ Game.requestId);
         cancelAnimationFrame(Game.requestId);
         Game.running = false;
+        Game.entities.betti.cassetteSound.pause();
     },
     restart: function(){
         Game.scenes.current = 'landingPage';
         Game.entities.badElements.list = new Array();
         Game.entities.goodElements.list = new Array();
+        Game.score = 0;
         Game.entities.betti.init();
         Game.loop();
     },
     render: function(){
         if(Game.scenes.current == 'highscore'){
             Game.scenes.highscore.render();
+            Game.backgroundGamesound.pause();
         }
-        
         if(Game.scenes.current == 'loading'){
             Game.scenes.loading.render();
+            Game.backgroundGamesound.pause();
         }
         if(Game.scenes.current == 'landingPage'){
             Game.scenes.landingPage.render();
+            Game.backgroundGamesound.pause();
         }
         if(Game.scenes.current == 'game'){
             Game.scenes.game.render();
+            //Game.backgroundGamesound.play();
         }
     },
     update: function(){
-        //console.log("aktuelle szene:" + Game.scenes.current);
+        if(Game.scenes.current == 'highscore'){
+            Game.scenes.highscore.update();
+        }
         if(Game.scenes.current == 'loading'){
             Game.scenes.loading.update();
         }
@@ -186,33 +242,22 @@ var Game = {
             render: function(){
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#429FDD');
                 Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2,Game.canvas.height/2-123,50,'#FFFFFF');
+                this.highscoreButton();
                 this.startButton();
                 this.inputField();
                 Game.pause();
                 window.removeEventListener('mousedown', Game.input.click,false);
             },
             update: function(){
-                
-                /*if (Game.input.clicked == true){
-                    var xLeft = Game.canvas.width/2-62;
-                    var xRight = Game.canvas.width/2+62;
-                    var yTop = Game.canvas.height/2-62;
-                    var yBottom = Game.canvas.height/2+62;
-                    console.log (xLeft + ", " + xRight + ", " + yTop + ", " + yBottom);
-                    if(Game.input.x >= xLeft && Game.input.x <= xRight && Game.input.y >= yTop && Game.input.y <= yBottom){
-                        Game.scenes.current = 'game';
-                    }
-                }
-                Game.input.clicked = false;*/
             },
             startButton: function (){
-                var start = Game.assets.getAsset('sprites/png/StartButton.png');
-                start.id = 'startButton';
-                start.style.position = 'fixed';
-                start.style.left = (Game.canvas.width/2-62)+'px';
-                start.style.top = (Game.canvas.height/2-62)+'px';
-                start.addEventListener('click',this.start, false);
-                document.body.appendChild(start);
+                var button = Game.assets.getAsset('sprites/png/StartButton.png');
+                button.id = 'startButton';
+                button.style.position = 'fixed';
+                button.style.left = (Game.canvas.width/2-62)+'px';
+                button.style.top = (Game.canvas.height/2-62)+'px';
+                button.addEventListener('click',this.start, false);
+                document.body.appendChild(button);
             },
             start: function(event){
                 var name = document.getElementById('playersName').value;
@@ -221,6 +266,7 @@ var Game = {
                 localStorage.setItem('player', name);
                 Game.scenes.current = 'game';
                 document.body.removeChild(document.getElementById('startButton'));
+                document.body.removeChild(document.getElementById('trophy'));
                 document.body.removeChild(document.getElementById('playersName'));
                 Game.loop();
             },
@@ -232,21 +278,40 @@ var Game = {
                 input.style.left = (Game.canvas.width/2+100)+'px';
                 input.style.top = (Game.canvas.height/2)+'px';
                 input.placeholder = 'Dein Name';
-                document.body.appendChild(input);
                 
+                if (!document.getElementById('playersName')){
+                    document.body.appendChild(input);
+                }
+            },
+            highscoreButton: function (){
+                var button = Game.assets.getAsset('sprites/png/trophy.png');
+                button.id = 'trophy';
+                button.style.position = 'fixed';
+                button.style.left = (Game.canvas.width/2-62)+'px';
+                button.style.top = (Game.canvas.height/2+100)+'px';
+                button.addEventListener('click',this.showHighscore, false);
+                document.body.appendChild(button); 
+            },
+            showHighscore: function (){
+                Game.scenes.current = 'highscore';
+                document.body.removeChild(document.getElementById('trophy'));
+                document.body.removeChild(document.getElementById('startButton'));
+                document.body.removeChild(document.getElementById('playersName'));
+                Game.loop();
             }
         },
         game: {
             step: 3,
             render: function(){
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_1.png'), 0, 0);
-                
                 Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#800000');
                 Game.entities.forrest.render();
                 Game.entities.betti.render();
                 Game.entities.badElements.render();
                 Game.entities.goodElements.render();
-                
+                if (Game.entities.betti.cassetteSound.paused){
+                    Game.backgroundGamesound.play();
+                }
             },
             update: function(){
                 Game.entities.forrest.update();
@@ -271,17 +336,58 @@ var Game = {
             }
         },
         highscore:{
-            //list: new Array(),
+            list: new Array(),
             render: function(){
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#455E7F');
-                Game.draw.drawText('Highscore',100,100,100,'#FFFFFF');
+                Game.draw.drawText('Top 10 Highscore',100,100,80,'#FFFFFF');
                 Game.draw.drawText('Rank',100,200,50,'#FFFFFF');
                 Game.draw.drawText('Points',300,200,50,'#FFFFFF');
                 Game.draw.drawText('Name',500,200,50,'#FFFFFF');
-                Game.draw.drawText('Date',700,200,50,'#FFFFFF');
+                this.landingPageButton();
+                
+                for (var i = 0; i<this.list.length; i++){
+                    var player = this.list[i];
+                    Game.draw.drawText(i+1,100,300+i*50,30,'#FFFFFF');
+                    Game.draw.drawText(player.score,300,300+i*50,30,'#FFFFFF');
+                    Game.draw.drawText(player.name,500,300+i*50,30,'#FFFFFF');
+                    if (i >=9){
+                        break;
+                    }
+                }
+                
+                Game.pause();
+                window.removeEventListener('mousedown', Game.input.click,false);
             },
             update: function(){
-                
+            },
+            storePlayer: function(player){
+                var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+                var open = indexedDB.open("snowboarding-DB",1);
+                open.onsuccess = function(){
+                    var db = open.result;
+                    var tx = db.transaction("players","readwrite");
+                    var store = tx.objectStore("players");
+                    store.put(player);
+                    tx.oncomplete = function(){
+                        db.close();
+                    }
+                }
+            },
+            
+            landingPageButton: function (){
+                var button = Game.assets.getAsset('sprites/png/landingPageButton.png');
+                button.id = 'landingPageButton';
+                button.style.position = 'fixed';
+                button.style.left = (1000)+'px';
+                button.style.top = (30)+'px';
+                button.addEventListener('click',this.jumpToLandingPage, false);
+                document.body.appendChild(button); 
+            },
+            jumpToLandingPage: function (){
+                Game.scenes.current = 'landingPage';
+                console.log('click');
+                document.body.removeChild(document.getElementById('landingPageButton'));
+                Game.loop();
             }
         }
     },
@@ -331,9 +437,14 @@ var Game = {
             jumping: false,
             landing: false,
             jumpHeight: 60,
+            //jumpSound:{},
+            //donutSound:{},
+            //cassetteSound:{},
+            //crashSound:{},
             jump: function(){
                 if(this.landing == false){
                     Game.entities.betti.jumping = true;
+                    Game.entities.betti.jumpSound.play();
                 }
             },
             render: function(){
@@ -348,11 +459,6 @@ var Game = {
                 }
             },
             update: function(){
-                
-                var pixel = Game.context.getImageData(this.x, this.y, 1,1);
-                console.log ('Bettis x: '+this.x+ ', Bettis y: '+this.y+ 'Transparenz: ' +pixel.data[3]);
-                
-                
                 if(this.x < Game.canvas.width-(Game.canvas.width/3*2)){
                     this.x += this.step;
                 }
@@ -432,6 +538,7 @@ var Game = {
             addBadElement: function(){
                 var badElement = {};
                 var typ = Math.floor((Math.random()*4)+1);
+                badElement.typ = typ;
                 if (typ == 1){
                   badElement.imgUrl = 'sprites/png/rock.png';  
                 }
@@ -460,6 +567,14 @@ var Game = {
                 this.list.push(badElement);
             },
             handleCollision: function(element){
+                //Crash Sound abspielen
+                Game.entities.betti.crashSound.play();
+                //Spielstand speichern
+                var player = {
+                    name: localStorage.getItem('player'),
+                    score: Game.score
+                };
+                Game.scenes.highscore.storePlayer(player);
                 //Spielabbruch
                 Game.pause();
                 Game.draw.drawText("Game over", 80, 350, 100, '#ff0000');
@@ -500,6 +615,7 @@ var Game = {
             addGoodElement: function(){
                 var goodElement = {};
                 var typ = Math.floor((Math.random()*2)+1);
+                goodElement.typ = typ;
                 if (typ == 1){
                   goodElement.imgUrl = 'sprites/png/Donut_mini.png';  
                 }
@@ -530,7 +646,14 @@ var Game = {
             handleCollision: function(element){
                 //Punkte hochzählen
                 Game.score += 1;
-                this.removeGoodElement(element);  
+                if (element.typ == 1){
+                    Game.entities.betti.donutSound.play();
+                }
+                if (element.typ ==2){
+                    Game.backgroundGamesound.pause();
+                    Game.entities.betti.cassetteSound.play();
+                }
+                this.removeGoodElement(element);
             }
         }
     },
@@ -557,7 +680,7 @@ var Game = {
                     break;
                 case 13://Return
                     if (!Game.running){
-                      Game.restart();  
+                      Game.restart();
                     }
                     break;
                 case 37: //Pfeil links
