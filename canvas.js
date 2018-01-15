@@ -241,7 +241,9 @@ var Game = {
         landingPage: {
             render: function(){
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#429FDD');
-                Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2,Game.canvas.height/2-123,50,'#FFFFFF');
+                Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2-500,Game.canvas.height/2+50,50,'#FFFFFF');
+                Game.draw.drawText('Credits:...',Game.canvas.width/2-700,Game.canvas.height/2+350,15,'#FFFFFF');
+                
                 this.highscoreButton();
                 this.startButton();
                 this.inputField();
@@ -275,9 +277,12 @@ var Game = {
                 input.id = 'playersName';
                 input.type = 'text';
                 input.style.position = 'fixed';
-                input.style.left = (Game.canvas.width/2+100)+'px';
-                input.style.top = (Game.canvas.height/2)+'px';
-                input.placeholder = 'Dein Name';
+                input.style.width = '200px';
+                input.style.height = '50px';
+                input.style.fontSize = '20px';
+                input.style.left = (Game.canvas.width/2-420)+'px';
+                input.style.top = (Game.canvas.height/2+130)+'px';
+                input.placeholder = 'Enter your name';
                 
                 if (!document.getElementById('playersName')){
                     document.body.appendChild(input);
@@ -347,9 +352,9 @@ var Game = {
                 
                 for (var i = 0; i<this.list.length; i++){
                     var player = this.list[i];
-                    Game.draw.drawText(i+1,100,300+i*50,30,'#FFFFFF');
-                    Game.draw.drawText(player.score,300,300+i*50,30,'#FFFFFF');
-                    Game.draw.drawText(player.name,500,300+i*50,30,'#FFFFFF');
+                    Game.draw.drawText(i+1,100,250+i*50,30,'#FFFFFF');
+                    Game.draw.drawText(player.score,300,250+i*50,30,'#FFFFFF');
+                    Game.draw.drawText(player.name,500,250+i*50,30,'#FFFFFF');
                     if (i >=9){
                         break;
                     }
