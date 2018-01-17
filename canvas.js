@@ -252,7 +252,7 @@ var Game = {
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#429FDD');
                 Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2-500,Game.canvas.height/2+50,50,'#FFFFFF');
                 Game.draw.drawText('Credits:...',Game.canvas.width/2-700,Game.canvas.height/2+350,15,'#FFFFFF');
-                
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'))
                 this.highscoreButton();
                 this.startButton();
                 this.inputField();
@@ -382,10 +382,13 @@ var Game = {
                     var db = open.result;
                     var tx = db.transaction("players","readwrite");
                     var store = tx.objectStore("players");
+                    //Speicherung in die IndexedDB
                     store.put(player);
                     tx.oncomplete = function(){
                         db.close();
-                    }
+                    };
+                    //Push in die Highscorelist
+                    Game.scenes.highscore.list.push(player);
                 }
             },
             
@@ -435,12 +438,12 @@ var Game = {
             },
             init: function(){
                 this.step = 3;
-                this.x= 100;
-                this.y= 610;
-                this.startY= 610;
-                this.jumping= false;
-                this.landing= false;
-                this.jumpHeight= 60;
+                this.x = 100;
+                this.y = 610;
+                this.startY = 610;
+                this.jumping = false;
+                this.landing = false;
+                this.jumpHeight = 60;
             },
             step: 3,
             x: 100,
@@ -452,10 +455,6 @@ var Game = {
             jumping: false,
             landing: false,
             jumpHeight: 60,
-            //jumpSound:{},
-            //donutSound:{},
-            //cassetteSound:{},
-            //crashSound:{},
             jump: function(){
                 if(this.landing == false){
                     Game.entities.betti.jumping = true;
