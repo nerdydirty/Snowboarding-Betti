@@ -100,7 +100,7 @@ var Game = {
         //Spiel starten:
         Game.loop();
     },
-    //Funktionen:
+    //Hilfsfunktionen:
     resize: function(){
         Game.canvas.width = window.innerWidth;
         Game.canvas.height = window.innerHeight;
@@ -117,6 +117,20 @@ var Game = {
         drawRect: function(x,y,width,height,color){
             Game.context.fillStyle = color || '#EEEEEE';
             Game.context.fillRect(x,y,width,height);
+        },
+        drawCircle: function(x,y,radius,startAngle,endAngle,color){
+            Game.context.beginPath();
+            Game.context.fillStyle = color;
+            Game.context.arc(x,y,radius,startAngle,endAngle);
+            Game.context.fill();
+        },
+        drawLine: function(x1, y1, x2, y2, color){
+            Game.context.strokeStyle = color;
+            Game.context.beginPath();
+            Game.context.moveTo(x1, y1);
+            Game.context.lineTo(x2, y2);
+            Game.context.closePath();
+            Game.context.stroke();
         }
     },
     loop: function(){
@@ -311,6 +325,7 @@ var Game = {
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_1.png'), 0, 0);
                 Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#800000');
                 Game.entities.forrest.render();
+                Game.draw.drawLine(0, 650, 1278, 650, '#FFF');
                 Game.entities.betti.render();
                 Game.entities.badElements.render();
                 Game.entities.goodElements.render();
@@ -325,15 +340,15 @@ var Game = {
                 Game.entities.goodElements.update();
                 //BadElements durchlaufen und auf Kollision überprüfen
                 for (var i=0; i<Game.entities.badElements.list.length; i++){
-                    if(Game.entities.betti.collisionWithElement(Game.entities.badElements.list[i])){
-                        console.log('Kollision! mit Element ' + Game.entities.badElements.list[i]);
+                    if(Game.entities.betti.collisionWithBadElement(Game.entities.badElements.list[i])){
+                        console.log('Kollision! mit BadFoo ' + Game.entities.badElements.list[i]);
                         Game.entities.badElements.handleCollision(Game.entities.badElements.list[i]);
                         break;
                     }
                 }
                 for (var i=0; i<Game.entities.goodElements.list.length; i++){
                     if(Game.entities.betti.collisionWithElement(Game.entities.goodElements.list[i])){
-                        console.log('Kollision! mit Goodi ' + Game.entities.goodElements.list[i]);
+                        console.log('Kollision! mit GoodFoo ' + Game.entities.goodElements.list[i]);
                         Game.entities.goodElements.handleCollision(Game.entities.goodElements.list[i]);
                                             
                     }
@@ -453,7 +468,7 @@ var Game = {
                 }
             },
             render: function(){
-                //Game.draw.drawRect(this.x, this.y, this.width(), this.height(), '#fff');
+                //Game.draw.drawRect(Game.entities.betti.x, Game.entities.betti.y, this.width(), this.height(), '#fff');
                 
                 if (this.jumping){
                     Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_2.png'), Game.entities.betti.x, Game.entities.betti.y);
@@ -462,6 +477,7 @@ var Game = {
                 }else {
                     Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'), Game.entities.betti.x, Game.entities.betti.y);
                 }
+                //Game.draw.drawCircle(Game.entities.betti.x+23, Game.entities.betti.y+23,23,0,2*Math.PI,'#67D30F');
             },
             update: function(){
                 if(this.x < Game.canvas.width-(Game.canvas.width/3*2)){
@@ -496,17 +512,34 @@ var Game = {
 
                 if((this.x + this.width())<=element.x)
                     return false;
-
                 if((this.y + this.height())<=element.y)
                     return false;
-
                 if((element.x + element.width)<=this.x)
                     return false;
-
                 if((element.y + element.height)<=this.y)
                     return false;
-
                 return true;
+            },
+            collisionWithBadElement: function(element){
+                //Bei Kreis-Kollision Pytagoras - Schnelle Version: https://www.spieleprogrammierer.de/wiki/2D-Kollisionserkennung#Kollision_zwischen_zwei_Kreisen
+                var circleBetti = {
+                    x: this.x+23,
+                    y: this.y+23,
+                    r: 23
+                };
+                var circleBadElement = {
+                    x: element.x+element.width/2,
+                    y: element.y+element.height/2,
+                    r: element.width/2-15
+                };
+                var dx = circleBetti.x - circleBadElement.x;
+                var dy = circleBetti.y - circleBadElement.y;
+                var distance = Math.sqrt (dx*dx + dy*dy);
+                
+                if(distance < circleBetti.r + circleBadElement.r){
+                    return true;
+                }
+                return false;
             }
         },
         badElements:{
@@ -518,7 +551,9 @@ var Game = {
                 for (var i = 0; i<this.list.length; i++){
                     
                     //Game.draw.drawRect(this.list[i].x, this.list[i].y, this.list[i].width, this.list[i].height, '#ff0000');
+                    
                     Game.draw.drawImage(Game.assets.getAsset(this.list[i].imgUrl),this.list[i].x, this.list[i].y);
+                    //Game.draw.drawCircle(this.list[i].x+this.list[i].width/2, this.list[i].y+this.list[i].height/2, this.list[i].width/2-15, 0,2*Math.PI,'#E99B0C');
                 }
                 
             },
