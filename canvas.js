@@ -41,7 +41,6 @@ var Game = {
         
         Game.canvas = document.getElementById('canvas');
         Game.context = Game.canvas.getContext('2d');
-        Game.resize();
         
         window.requestAnimationFrame = (function(){
             return window.requestAnimationFrame ||
@@ -101,10 +100,6 @@ var Game = {
         Game.loop();
     },
     //Hilfsfunktionen:
-    resize: function(){
-        Game.canvas.width = window.innerWidth;
-        Game.canvas.height = window.innerHeight;
-    },
     draw: {
         drawImage: function(img,x,y){
             Game.context.drawImage(img, x, y);
@@ -269,28 +264,28 @@ var Game = {
             startButton: function (){
                 var button = Game.assets.getAsset('sprites/png/StartButton.png');
                 button.id = 'startButton';
-                button.style.position = 'fixed';
+                button.style.position = 'absolute';
                 button.style.left = (Game.canvas.width/2-62)+'px';
                 button.style.top = (Game.canvas.height/2-62)+'px';
-                button.addEventListener('click',this.start, false);
-                document.body.appendChild(button);
+                button.addEventListener('click',this.startGame, false);
+                document.getElementById('container').appendChild(button);
             },
-            start: function(event){
+            startGame: function(event){
                 var name = document.getElementById('playersName').value;
                 console.log(document.getElementById('playersName').value);
                 console.log ("button wurde geklickt");
                 localStorage.setItem('player', name);
                 Game.scenes.current = 'game';
-                document.body.removeChild(document.getElementById('startButton'));
-                document.body.removeChild(document.getElementById('trophy'));
-                document.body.removeChild(document.getElementById('playersName'));
+                document.getElementById('container').removeChild(document.getElementById('startButton'));
+                document.getElementById('container').removeChild(document.getElementById('trophy'));
+                document.getElementById('container').removeChild(document.getElementById('playersName'));
                 Game.loop();
             },
             inputField: function (){
                 var input = document.createElement('input');
                 input.id = 'playersName';
                 input.type = 'text';
-                input.style.position = 'fixed';
+                input.style.position = 'absolute';
                 input.style.width = '200px';
                 input.style.height = '50px';
                 input.style.fontSize = '20px';
@@ -299,23 +294,23 @@ var Game = {
                 input.placeholder = 'Enter your name';
                 
                 if (!document.getElementById('playersName')){
-                    document.body.appendChild(input);
+                    document.getElementById('container').appendChild(input);
                 }
             },
             highscoreButton: function (){
                 var button = Game.assets.getAsset('sprites/png/trophy.png');
                 button.id = 'trophy';
-                button.style.position = 'fixed';
+                button.style.position = 'absolute';
                 button.style.left = (Game.canvas.width/2-62)+'px';
                 button.style.top = (Game.canvas.height/2+100)+'px';
                 button.addEventListener('click',this.showHighscore, false);
-                document.body.appendChild(button); 
+                document.getElementById('container').appendChild(button); 
             },
             showHighscore: function (){
                 Game.scenes.current = 'highscore';
-                document.body.removeChild(document.getElementById('trophy'));
-                document.body.removeChild(document.getElementById('startButton'));
-                document.body.removeChild(document.getElementById('playersName'));
+                document.getElementById('container').removeChild(document.getElementById('trophy'));
+                document.getElementById('container').removeChild(document.getElementById('startButton'));
+                document.getElementById('container').removeChild(document.getElementById('playersName'));
                 Game.loop();
             }
         },
@@ -397,16 +392,16 @@ var Game = {
             landingPageButton: function (){
                 var button = Game.assets.getAsset('sprites/png/landingPageButton.png');
                 button.id = 'landingPageButton';
-                button.style.position = 'fixed';
-                button.style.left = (1000)+'px';
-                button.style.top = (30)+'px';
+                button.style.position = 'absolute';
+                button.style.left = 1136+'px';
+                button.style.top = 20+'px';
                 button.addEventListener('click',this.jumpToLandingPage, false);
-                document.body.appendChild(button); 
+                document.getElementById('container').appendChild(button); 
             },
             jumpToLandingPage: function (){
                 Game.scenes.current = 'landingPage';
                 console.log('click');
-                document.body.removeChild(document.getElementById('landingPageButton'));
+                document.getElementById('container').removeChild(document.getElementById('landingPageButton'));
                 Game.loop();
             }
         }
@@ -425,7 +420,7 @@ var Game = {
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_0.png'), this.x+1500, 419);
             },
             update: function(){
-                this.x -= 2;
+                this.x -= 0.5;
                 if (this.x < -1500){
                     this.x = 0;
                 }
@@ -741,6 +736,5 @@ var Game = {
 };
 
 window.addEventListener('load', Game.init, false);
-window.addEventListener('resize', Game.resize, false);
 window.addEventListener('mousedown', Game.input.click,false);
 window.addEventListener('keydown', Game.input.keydown,false);
