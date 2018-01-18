@@ -1,3 +1,6 @@
+/*--------------------------------------------------
+--------------->> Snowboarding Betti <<-------------
+--------------------------------------------------*/
 var Game = {
     canvas: false,
     context: false,
@@ -5,6 +8,9 @@ var Game = {
     running: false,
     score: 0,
     backgroundGamesound:{},
+    /*-----------------------------------------------------
+    ---------------------->> init() <<--------------------
+    -------------------------------------------------------*/
     init: function(){
         var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
         var open = indexedDB.open("snowboarding-DB",1);
@@ -60,10 +66,13 @@ var Game = {
                 window.msRequestAnimationFrame ||
                 clearTimeout
         })();
-        //Audio laden
+        /*--------------------------------------------------
+        -------------------->> Audio <<---------------------
+        --------------------------------------------------*/
+        //Audio laden:
         Game.backgroundGamesound = new Audio('audio/background.mp3');
         Game.backgroundGamesound.loop = true;
-        //Game.backgroundGamesound.play();
+        //Game.backgroundGamesound.play(); --> @MARCO:ICH MERKE KEINEN UNTERSCHIE EGAL OB DRIN ODER NICHT...
         Game.entities.betti.jumpSound = new Audio('audio/Jump-SoundBible.com-1007297584.mp3');
         Game.entities.betti.jumpSound.loop = false;
         Game.entities.betti.cassetteSound = new Audio('audio/bavarianFinestWoodis.mp3');
@@ -73,11 +82,31 @@ var Game = {
         Game.entities.betti.crashSound = new Audio('audio/Female-Sigh-SoundBible.com-675137452.mp3');
         Game.entities.betti.crashSound.loop = false;
         
-        
+        /*--------------------------------------------------
+        -------------------->> Assets <<---------------------
+        --------------------------------------------------*/
        //Assets laden:
         Game.assets.addRessource('sprites/png/betti_1.png');
         Game.assets.addRessource('sprites/png/betti_2.png');
         Game.assets.addRessource('sprites/png/betti_4.png');
+        Game.assets.addRessource('sprites/png/snowGround.png');
+        Game.assets.addRessource('sprites/png/snowGroundtest.png');
+        Game.assets.addRessource('sprites/png/1.png');
+        Game.assets.addRessource('sprites/png/2.png');
+        Game.assets.addRessource('sprites/png/3.png');
+        Game.assets.addRessource('sprites/png/4.png');
+        Game.assets.addRessource('sprites/png/5.png');
+        Game.assets.addRessource('sprites/png/6.png');
+        Game.assets.addRessource('sprites/png/7.png');
+        Game.assets.addRessource('sprites/png/8.png');
+        Game.assets.addRessource('sprites/png/9.png');
+        Game.assets.addRessource('sprites/png/10.png');
+        Game.assets.addRessource('sprites/png/11.png');
+        Game.assets.addRessource('sprites/png/12.png');
+        Game.assets.addRessource('sprites/png/13.png');
+        Game.assets.addRessource('sprites/png/14.png');
+        Game.assets.addRessource('sprites/png/15.png');
+        Game.assets.addRessource('sprites/png/16.png');
         Game.assets.addRessource('sprites/png/cassette_mini.png');
         Game.assets.addRessource('sprites/png/headphones.png');
         Game.assets.addRessource('sprites/png/tree-stump.png');
@@ -89,6 +118,7 @@ var Game = {
         //Game.assets.addRessource('sprites/png/betti_1_weich.png');
         Game.assets.addRessource('sprites/png/mountains_1.png');
         Game.assets.addRessource('sprites/png/mountains_0.png');
+        Game.assets.addRessource('sprites/png/nextLevelBG.png');
         //Game.assets.addRessource('sprites/png/loadingText_bigPic.jpg');
         Game.assets.addRessource('sprites/png/StartButton.png');
         Game.assets.addRessource('sprites/png/trophy.png');
@@ -99,7 +129,10 @@ var Game = {
         //Spiel starten:
         Game.loop();
     },
-    //Hilfsfunktionen:
+    /*--------------------------------------------------
+    --------------->> Hilfsfunktionen <<----------------
+    --------------------------------------------------*/
+    //Malfunktionen:
     draw: {
         drawImage: function(img,x,y){
             Game.context.drawImage(img, x, y);
@@ -128,6 +161,7 @@ var Game = {
             Game.context.stroke();
         }
     },
+    //Rendering-Loop, die wiederholt den Canvas zeichnet (Doku:Rekursiver Aufruf, FPS vom Browser bestimmt)
     loop: function(){
         Game.requestId = window.requestAnimationFrame(Game.loop);
         Game.running = true;
@@ -320,6 +354,7 @@ var Game = {
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_1.png'), 0, 0);
                 Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#800000');
                 Game.entities.forrest.render();
+                Game.entities.snowGround.render();
                 Game.draw.drawLine(0, 650, 1278, 650, '#FFF');
                 Game.entities.betti.render();
                 Game.entities.badElements.render();
@@ -349,6 +384,18 @@ var Game = {
                     }
                 }
             }
+        },
+        levelCrossing:{
+            
+        },
+        nextLevel:{
+            render: function(){
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/nextLevelBG.png'), 0, 0);
+            },
+            update: function(){
+                
+            }
+            
         },
         highscore:{
             list: new Array(),
@@ -418,7 +465,11 @@ var Game = {
             }
         }
     },
-    //Enities
+    
+    /*-----------------------------------------------------
+    ---------------------->> Enities <<--------------------
+    -------------------------------------------------------*/
+    
     entities: {
         // Anzahl der Durchläufe der update()-Schleife
         //ticks: 0,
@@ -438,7 +489,26 @@ var Game = {
                 }
             }
         },
-        betti: {
+        snowGround:{
+            x:0,
+            render: function(){
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGroundtest.png'), this.x+128, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+256, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+384, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+512, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+640, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+768, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/3.png'), this.x+896, 650);
+            },
+            update: function(){
+                this.x -= 0.5;
+                if (this.x < -128){
+                    this.x = 0;
+                }
+            }
+        },
+        betti:{
             width: function(){
                 return Game.assets.getAsset('sprites/png/betti_1.png').width;
             },

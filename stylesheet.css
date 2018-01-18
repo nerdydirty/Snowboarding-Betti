@@ -1,0 +1,22 @@
+#container {
+    /*https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
+    vertical + horizontal*/
+    
+    padding: 0;
+    margin: auto;
+    display: block;
+    width: 1278px;
+    height: 735px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#canvas {
+    border: 1px solid white;
+    width: 1278px;
+    height: 735px;
+  
+}
