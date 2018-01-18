@@ -492,13 +492,13 @@ var Game = {
         snowGround:{
             x:0,
             render: function(){
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x, 650);
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGroundtest.png'), this.x+128, 650);
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+256, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), this.x, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), this.x+128, 650);
+                /*Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+256, 650);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+384, 650);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+512, 650);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+640, 650);
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+768, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+768, 650);*/
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/3.png'), this.x+896, 650);
             },
             update: function(){
