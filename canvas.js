@@ -387,8 +387,17 @@ var Game = {
                     tx.oncomplete = function(){
                         db.close();
                     };
-                    //Push in die Highscorelist
+                    //Push in die Highscoreliste
                     Game.scenes.highscore.list.push(player);
+                    Game.scenes.highscore.list.sort(function(a,b) {
+                        if (a.score > b.score) {
+                            return -1;
+                        }
+                        if (b.score > a.score) {
+                            return 1;
+                        }
+                        return 0;
+                    });
                 }
             },
             
