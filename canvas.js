@@ -118,7 +118,7 @@ var Game = {
         //Game.assets.addRessource('sprites/png/betti_1_weich.png');
         Game.assets.addRessource('sprites/png/mountains_1.png');
         Game.assets.addRessource('sprites/png/mountains_0.png');
-        Game.assets.addRessource('sprites/png/nextLevelBG.png');
+        Game.assets.addRessource('sprites/png/caveBG.png');
         //Game.assets.addRessource('sprites/png/loadingText_bigPic.jpg');
         Game.assets.addRessource('sprites/png/StartButton.png');
         Game.assets.addRessource('sprites/png/trophy.png');
@@ -201,6 +201,9 @@ var Game = {
             Game.scenes.game.render();
             //Game.backgroundGamesound.play();
         }
+        if(Game.scenes.current == 'nextLevel'){
+            Game.scenes.nextLevel.render();
+        }
     },
     update: function(){
         if(Game.scenes.current == 'highscore'){
@@ -215,6 +218,9 @@ var Game = {
         if(Game.scenes.current == 'game'){
             Game.scenes.game.update();
             //Game.entities.ticks +=1;
+        }
+        if(Game.scenes.current == 'nextLevel'){
+            Game.scenes.nextLevel.update();
         }
     },
     collision: function(a, b){
@@ -309,7 +315,7 @@ var Game = {
                 console.log(document.getElementById('playersName').value);
                 console.log ("button wurde geklickt");
                 localStorage.setItem('player', name);
-                Game.scenes.current = 'game';
+                Game.scenes.current = 'nextLevel';
                 document.getElementById('container').removeChild(document.getElementById('startButton'));
                 document.getElementById('container').removeChild(document.getElementById('trophy'));
                 document.getElementById('container').removeChild(document.getElementById('playersName'));
@@ -355,7 +361,7 @@ var Game = {
                 Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#800000');
                 Game.entities.forrest.render();
                 Game.entities.snowGround.render();
-                Game.draw.drawLine(0, 650, 1278, 650, '#FFF');
+                //Game.draw.drawLine(0, 650, 1278, 650, '#FFF');
                 Game.entities.betti.render();
                 Game.entities.badElements.render();
                 Game.entities.goodElements.render();
@@ -389,13 +395,49 @@ var Game = {
             
         },
         nextLevel:{
+            step: 10, //muss noch verwendet werden um die badElements zu beschleunigen
+            opacity:1.0,
             render: function(){
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/nextLevelBG.png'), 0, 0);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBG.png'), 0, 0);
+                Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#FFF');
+                //Game.entities.forrest.render(); -->ersetzen mit canvasBGfront
+                Game.entities.snowGround.render();//-->ersetzen mit eisGround NEW suchen
+                //Game.draw.drawLine(0, 650, 1278, 650, '#FFF');
+                Game.entities.betti.render();
+                Game.entities.badElements.render();//-->durch andere badElements ersetzen (in die Entities ist schlecht)
+                Game.entities.goodElements.render();
+                Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, 'rgba(9,41,43,'+this.opacity+')');
+                if (this.opacity>0.2){
+                    Game.draw.drawText("Hurray! Level 2", 80, 350, 100, 'rgb(214,242,255)');
+                }
+                if (Game.entities.betti.cassetteSound.paused){
+                    Game.backgroundGamesound.play();// vielleicht anderer Sound: Tropfsteinhöle
+                }
             },
             update: function(){
-                
+                if(this.opacity>0){
+                    this.opacity -=0.01;
+                }
+                //Game.entities.forrest.update(); -->ersetzen mit canvasBGfront
+                Game.entities.betti.update();
+                Game.entities.badElements.update();//-->durch andere badElements ersetzen
+                Game.entities.goodElements.update();
+                //BadElements durchlaufen und auf Kollision überprüfen
+                for (var i=0; i<Game.entities.badElements.list.length; i++){
+                    if(Game.entities.betti.collisionWithBadElement(Game.entities.badElements.list[i])){//kann bleiben weil allgem. Function
+                        console.log('Kollision! mit BadFoo ' + Game.entities.badElements.list[i]);
+                        Game.entities.badElements.handleCollision(Game.entities.badElements.list[i]);
+                        break;
+                    }
+                }
+                for (var i=0; i<Game.entities.goodElements.list.length; i++){
+                    if(Game.entities.betti.collisionWithElement(Game.entities.goodElements.list[i])){
+                        console.log('Kollision! mit GoodFoo ' + Game.entities.goodElements.list[i]);
+                        Game.entities.goodElements.handleCollision(Game.entities.goodElements.list[i]);
+                                            
+                    }
+                }
             }
-            
         },
         highscore:{
             list: new Array(),
@@ -492,14 +534,10 @@ var Game = {
         snowGround:{
             x:0,
             render: function(){
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), this.x, 650);
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), this.x+128, 650);
-                /*Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+256, 650);
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+384, 650);
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+512, 650);
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+640, 650);
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround.png'), this.x+768, 650);*/
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/3.png'), this.x+896, 650);
+                for (var i=0; i<1278; i+=128){
+                    Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), i, 650);
+                };
+                //Game.draw.drawImage(Game.assets.getAsset('sprites/png/3.png'), this.x+896, 650);
             },
             update: function(){
                 this.x -= 0.5;
@@ -624,7 +662,7 @@ var Game = {
                 for (var i = 0; i<this.list.length; i++){
                     
                     //Game.draw.drawRect(this.list[i].x, this.list[i].y, this.list[i].width, this.list[i].height, '#ff0000');
-                    
+                    //Zugriff auf ein Arrayelement mit Index i und malen:
                     Game.draw.drawImage(Game.assets.getAsset(this.list[i].imgUrl),this.list[i].x, this.list[i].y);
                     //Game.draw.drawCircle(this.list[i].x+this.list[i].width/2, this.list[i].y+this.list[i].height/2, this.list[i].width/2-15, 0,2*Math.PI,'#E99B0C');
                 }
@@ -673,10 +711,10 @@ var Game = {
                         badElement.x = Game.canvas.width+10;
                     }
                 }
-                badElement.y = 600;
+                
                 badElement.width = Game.assets.getAsset(badElement.imgUrl).width;
                 badElement.height = Game.assets.getAsset(badElement.imgUrl).height;
-                
+                badElement.y = 663-badElement.height;
                 this.list.push(badElement);
             },
             handleCollision: function(element){
