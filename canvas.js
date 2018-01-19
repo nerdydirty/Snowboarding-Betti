@@ -116,9 +116,11 @@ var Game = {
         Game.assets.addRessource('sprites/png/Donut_mini.png');
         //Game.assets.addRessource('sprites/png/musictape.png');
         //Game.assets.addRessource('sprites/png/betti_1_weich.png');
-        Game.assets.addRessource('sprites/png/mountains_1.png');
         Game.assets.addRessource('sprites/png/mountains_0.png');
+        Game.assets.addRessource('sprites/png/mountains_1.png');
         Game.assets.addRessource('sprites/png/caveBG.png');
+        Game.assets.addRessource('sprites/png/caveBGfront.png');
+        Game.assets.addRessource('sprites/png/caveBGback.png');
         //Game.assets.addRessource('sprites/png/loadingText_bigPic.jpg');
         Game.assets.addRessource('sprites/png/StartButton.png');
         Game.assets.addRessource('sprites/png/trophy.png');
@@ -392,15 +394,15 @@ var Game = {
             }
         },
         levelCrossing:{
-            
+         //kann glaub ich weg   
         },
         nextLevel:{
             step: 10, //muss noch verwendet werden um die badElements zu beschleunigen
             opacity:1.0,
             render: function(){
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBG.png'), 0, 0);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBGback.png'), 0, 0);
                 Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#FFF');
-                //Game.entities.forrest.render(); -->ersetzen mit canvasBGfront
+                Game.entities.caveBGfront.render();
                 Game.entities.snowGround.render();//-->ersetzen mit eisGround NEW suchen
                 //Game.draw.drawLine(0, 650, 1278, 650, '#FFF');
                 Game.entities.betti.render();
@@ -418,7 +420,7 @@ var Game = {
                 if(this.opacity>0){
                     this.opacity -=0.01;
                 }
-                //Game.entities.forrest.update(); -->ersetzen mit canvasBGfront
+                Game.entities.caveBGfront.update();
                 Game.entities.betti.update();
                 Game.entities.badElements.update();//-->durch andere badElements ersetzen
                 Game.entities.goodElements.update();
@@ -542,6 +544,19 @@ var Game = {
             update: function(){
                 this.x -= 0.5;
                 if (this.x < -128){
+                    this.x = 0;
+                }
+            }
+        },
+        caveBGfront:{
+            x:0,
+            render: function(){
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBGfront.png'), this.x,434);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBGfront.png'), this.x+1459,434);
+            },
+            update:function(){
+                this.x -= 0.5;
+                if (this.x < -1459){
                     this.x = 0;
                 }
             }
