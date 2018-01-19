@@ -13,12 +13,14 @@ var Game = {
     -------------------------------------------------------*/
     init: function(){
         var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+        /*--------------------------------------------------
+                --------------->> ?? <<-------------
+        --------------------------------------------------*/
         var open = indexedDB.open("snowboarding-DB",1);
         open.onupgradeneeded = function(){
             var db = open.result;
             db.createObjectStore("players",{keyPath:"id", autoIncrement: true});
         };
-        
         open.onsuccess = function(){
             var db = open.result;
             var tx = db.transaction("players","readwrite");
@@ -39,7 +41,6 @@ var Game = {
                     return 0;
                 });
             }
-
             tx.oncomplete = function(){
                 db.close();
             }
@@ -72,7 +73,7 @@ var Game = {
         //Audio laden:
         Game.backgroundGamesound = new Audio('audio/background.mp3');
         Game.backgroundGamesound.loop = true;
-        //Game.backgroundGamesound.play(); --> @MARCO:ICH MERKE KEINEN UNTERSCHIE EGAL OB DRIN ODER NICHT...
+        //Game.backgroundGamesound.play(); --> ICH MERKE KEINEN UNTERSCHIED EGAL OB DRIN ODER NICHT...
         Game.entities.betti.jumpSound = new Audio('audio/Jump-SoundBible.com-1007297584.mp3');
         Game.entities.betti.jumpSound.loop = false;
         Game.entities.betti.cassetteSound = new Audio('audio/bavarianFinestWoodis.mp3');
@@ -163,6 +164,9 @@ var Game = {
             Game.context.stroke();
         }
     },
+    /*--------------------------------------------------
+    --------------->> Rendering-Loop <<-----------------
+    --------------------------------------------------*/
     //Rendering-Loop, die wiederholt den Canvas zeichnet (Doku:Rekursiver Aufruf, FPS vom Browser bestimmt)
     loop: function(){
         Game.requestId = window.requestAnimationFrame(Game.loop);
@@ -186,6 +190,9 @@ var Game = {
         Game.entities.betti.init();
         Game.loop();
     },
+    /*--------------------------------------------------
+    ------------>> Render-Methode v. Game <<------------
+    --------------------------------------------------*/
     render: function(){
         if(Game.scenes.current == 'highscore'){
             Game.scenes.highscore.render();
@@ -207,6 +214,9 @@ var Game = {
             Game.scenes.nextLevel.render();
         }
     },
+    /*--------------------------------------------------
+    ------------>> Update-Methode v. Game <<------------
+    --------------------------------------------------*/
     update: function(){
         if(Game.scenes.current == 'highscore'){
             Game.scenes.highscore.update();
@@ -226,7 +236,7 @@ var Game = {
         }
     },
     collision: function(a, b){
-        //TODO: Kollisionsberechnung auf Pixelgenau umstellen. Vorerst BoundingBox Methode ausreichend
+        //TODO: Kollisionsberechnung auf Pixelgenau umstellen. Vorerst BoundingBox u Circle Methode ausreichend
         //Grundlage: http://www.virtual-maxim.de/pixelgenaue-kollisionserkennung/
         console.log ('a: ' + a);
         console.log ('b: ' + b);
@@ -246,7 +256,9 @@ var Game = {
         return true;
     },
 
-    //Asset Manager:
+    /*--------------------------------------------------
+    ---------------->> Asset Manager <<----------------
+    --------------------------------------------------*/
     assets: {
         list: new Array(),
         cache: new Array(),
@@ -275,9 +287,14 @@ var Game = {
             return Game.assets.cache[url];
         }
     },
-    //Szenen:
+    /*--------------------------------------------------
+    -------------------->> Szenen <<--------------------
+    --------------------------------------------------*/
     scenes: {
         current: 'loading',
+        /*--------------------------------------------------
+        ------------------>> Lade-Screen <<-----------------
+        --------------------------------------------------*/
         loading: {
             render: function(){
                 Game.draw.drawImage(document.getElementById('lade'),(Game.canvas.width-250)/2, (Game.canvas.height-250)/2);
@@ -289,11 +306,18 @@ var Game = {
                 }
             }
         },
+        /*--------------------------------------------------
+        ------------------->> Ladingpage <<-----------------
+        --------------------------------------------------*/
         landingPage: {
             render: function(){
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#429FDD');
-                Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2-500,Game.canvas.height/2+50,50,'#FFFFFF');
-                Game.draw.drawText('Credits:...',Game.canvas.width/2-700,Game.canvas.height/2+350,15,'#FFFFFF');
+                Game.draw.drawText('Credits',Game.canvas.width/4,24,28,'#255');
+                Game.draw.drawText('Erstellt von Beate Ullmann  |  beate.ullmann@stud.fh-luebeck.de',Game.canvas.width/4,Game.canvas.height/14,22,'#255');
+                Game.draw.drawText('Sprites: no credits needed',Game.canvas.width/4,Game.canvas.height/9-3,22,'#255');
+                Game.draw.drawText('Sounds: Die Woodys - Fichtls Lied (Tony Marshall Production)',Game.canvas.width/4,Game.canvas.height/7,22,'#255');
+                Game.draw.drawText('Haindling - Pfeif drauf (Tony Marshall Production)',Game.canvas.width/4+70,Game.canvas.height/6+10,22,'#255');
+                Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2+50,Game.canvas.height/2+50,50,'#FFFFFF');
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'))
                 this.highscoreButton();
                 this.startButton();
@@ -307,17 +331,17 @@ var Game = {
                 var button = Game.assets.getAsset('sprites/png/StartButton.png');
                 button.id = 'startButton';
                 button.style.position = 'absolute';
-                button.style.left = (Game.canvas.width/2-62)+'px';
+                button.style.left = (Game.canvas.width-180)+'px';
                 button.style.top = (Game.canvas.height/2-62)+'px';
-                button.addEventListener('click',this.startGame, false);
+                button.addEventListener('click',this.startPlay, false);
                 document.getElementById('container').appendChild(button);
             },
-            startGame: function(event){
+            startPlay: function(event){
                 var name = document.getElementById('playersName').value;
                 console.log(document.getElementById('playersName').value);
                 console.log ("button wurde geklickt");
                 localStorage.setItem('player', name);
-                Game.scenes.current = 'nextLevel';
+                Game.scenes.current = 'game';//Demo-Wechsel mit 'nextLevel'
                 document.getElementById('container').removeChild(document.getElementById('startButton'));
                 document.getElementById('container').removeChild(document.getElementById('trophy'));
                 document.getElementById('container').removeChild(document.getElementById('playersName'));
@@ -331,7 +355,7 @@ var Game = {
                 input.style.width = '200px';
                 input.style.height = '50px';
                 input.style.fontSize = '20px';
-                input.style.left = (Game.canvas.width/2-420)+'px';
+                input.style.left = (Game.canvas.width/2+130)+'px';
                 input.style.top = (Game.canvas.height/2+130)+'px';
                 input.placeholder = 'Enter your name';
                 
@@ -343,7 +367,7 @@ var Game = {
                 var button = Game.assets.getAsset('sprites/png/trophy.png');
                 button.id = 'trophy';
                 button.style.position = 'absolute';
-                button.style.left = (Game.canvas.width/2-62)+'px';
+                button.style.left = (Game.canvas.width-180)+'px';
                 button.style.top = (Game.canvas.height/2+100)+'px';
                 button.addEventListener('click',this.showHighscore, false);
                 document.getElementById('container').appendChild(button); 
@@ -356,6 +380,9 @@ var Game = {
                 Game.loop();
             }
         },
+        /*--------------------------------------------------
+        -------------->> Spielwelt (1. Level) <<------------
+        --------------------------------------------------*/
         game: {
             step: 3,
             render: function(){
@@ -396,6 +423,9 @@ var Game = {
         levelCrossing:{
          //kann glaub ich weg   
         },
+        /*--------------------------------------------------
+        -------------->> Spielwelt (2. Level) <<------------
+        --------------------------------------------------*/
         nextLevel:{
             step: 10, //muss noch verwendet werden um die badElements zu beschleunigen
             opacity:1.0,
@@ -441,16 +471,18 @@ var Game = {
                 }
             }
         },
+        /*--------------------------------------------------
+        ----------------->> Highscoreliste <<---------------
+        --------------------------------------------------*/
         highscore:{
             list: new Array(),
             render: function(){
+                this.landingPageButton();
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#455E7F');
                 Game.draw.drawText('Top 10 Highscore',100,100,80,'#FFFFFF');
                 Game.draw.drawText('Rank',100,200,50,'#FFFFFF');
                 Game.draw.drawText('Points',300,200,50,'#FFFFFF');
                 Game.draw.drawText('Name',500,200,50,'#FFFFFF');
-                this.landingPageButton();
-                
                 for (var i = 0; i<this.list.length; i++){
                     var player = this.list[i];
                     Game.draw.drawText(i+1,100,250+i*50,30,'#FFFFFF');
@@ -460,7 +492,6 @@ var Game = {
                         break;
                     }
                 }
-                
                 Game.pause();
                 window.removeEventListener('mousedown', Game.input.click,false);
             },
@@ -491,7 +522,6 @@ var Game = {
                     });
                 }
             },
-            
             landingPageButton: function (){
                 var button = Game.assets.getAsset('sprites/png/landingPageButton.png');
                 button.id = 'landingPageButton';
@@ -509,17 +539,18 @@ var Game = {
             }
         }
     },
-    
     /*-----------------------------------------------------
     ---------------------->> Enities <<--------------------
     -------------------------------------------------------*/
-    
     entities: {
         // Anzahl der Durchläufe der update()-Schleife
         //ticks: 0,
         //entities: new Array(),
         maxOnScreen: 4,
         onScreen: 0,
+        /*--------------------------------------------------
+        -------------->> Ani. Wald v. 1. Level <<-----------
+        --------------------------------------------------*/
         forrest:{
             x:0,
             render: function(){
@@ -533,12 +564,15 @@ var Game = {
                 }
             }
         },
+        /*--------------------------------------------------
+        -------------->> (todo: Ani.) Schneepiste v. 1. Level <<-----------
+        --------------------------------------------------*/
         snowGround:{
             x:0,
             render: function(){
                 for (var i=0; i<1278; i+=128){
                     Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), i, 650);
-                };
+                }
                 //Game.draw.drawImage(Game.assets.getAsset('sprites/png/3.png'), this.x+896, 650);
             },
             update: function(){
@@ -833,7 +867,7 @@ var Game = {
             console.log("mousedown in " + e.x + ", " + e.y);
             e.preventDefault();
             Game.input.x = e.x;
-            Game.input.y =e.y;
+            Game.input.y = e.y;
             Game.input.clicked = true;
         },
         keydown: function(e){
@@ -867,5 +901,5 @@ var Game = {
 };
 
 window.addEventListener('load', Game.init, false);
-window.addEventListener('mousedown', Game.input.click,false);
+window.addEventListener('mousedown', Game.input.click,false);//kann vielleicht raus - prüfen ob es überhaupt verwendet wird...
 window.addEventListener('keydown', Game.input.keydown,false);
