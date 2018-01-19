@@ -1,6 +1,7 @@
 /*--------------------------------------------------
 --------------->> Snowboarding Betti <<-------------
 --------------------------------------------------*/
+//Hauptobjekt:
 var Game = {
     canvas: false,
     context: false,
@@ -12,10 +13,10 @@ var Game = {
     ---------------------->> init() <<--------------------
     -------------------------------------------------------*/
     init: function(){
-        var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
         /*--------------------------------------------------
                 --------------->> ?? <<-------------
         --------------------------------------------------*/
+        var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
         var open = indexedDB.open("snowboarding-DB",1);
         open.onupgradeneeded = function(){
             var db = open.result;
@@ -45,10 +46,11 @@ var Game = {
                 db.close();
             }
         };
-        
+        //Context auf dem gemalt wird:
         Game.canvas = document.getElementById('canvas');
         Game.context = Game.canvas.getContext('2d');
         
+        //Vorbereitung für die Game-Loop:
         window.requestAnimationFrame = (function(){
             return window.requestAnimationFrame ||
                 window.webkitRequestAnimationFrame ||
@@ -133,64 +135,6 @@ var Game = {
         Game.loop();
     },
     /*--------------------------------------------------
-    --------------->> Hilfsfunktionen <<----------------
-    --------------------------------------------------*/
-    //Malfunktionen:
-    draw: {
-        drawImage: function(img,x,y){
-            Game.context.drawImage(img, x, y);
-        },
-        drawText: function(text, x, y, size, color){
-            Game.context.fillStyle = color;
-            Game.context.font = size + 'px Dosis';
-            Game.context.fillText(text, x, y);
-        },
-        drawRect: function(x,y,width,height,color){
-            Game.context.fillStyle = color || '#EEEEEE';
-            Game.context.fillRect(x,y,width,height);
-        },
-        drawCircle: function(x,y,radius,startAngle,endAngle,color){
-            Game.context.beginPath();
-            Game.context.fillStyle = color;
-            Game.context.arc(x,y,radius,startAngle,endAngle);
-            Game.context.fill();
-        },
-        drawLine: function(x1, y1, x2, y2, color){
-            Game.context.strokeStyle = color;
-            Game.context.beginPath();
-            Game.context.moveTo(x1, y1);
-            Game.context.lineTo(x2, y2);
-            Game.context.closePath();
-            Game.context.stroke();
-        }
-    },
-    /*--------------------------------------------------
-    --------------->> Rendering-Loop <<-----------------
-    --------------------------------------------------*/
-    //Rendering-Loop, die wiederholt den Canvas zeichnet (Doku:Rekursiver Aufruf, FPS vom Browser bestimmt)
-    loop: function(){
-        Game.requestId = window.requestAnimationFrame(Game.loop);
-        Game.running = true;
-        Game.render();
-        Game.update();
-        console.log("Frame is running: "+ Game.requestId);
-        console.log("running: "+ Game.running);
-    },
-    pause: function(){
-        console.log("Frame stops: "+ Game.requestId);
-        cancelAnimationFrame(Game.requestId);
-        Game.running = false;
-        Game.entities.betti.cassetteSound.pause();
-    },
-    restart: function(){
-        Game.scenes.current = 'landingPage';
-        Game.entities.badElements.list = new Array();
-        Game.entities.goodElements.list = new Array();
-        Game.score = 0;
-        Game.entities.betti.init();
-        Game.loop();
-    },
-    /*--------------------------------------------------
     ------------>> Render-Methode v. Game <<------------
     --------------------------------------------------*/
     render: function(){
@@ -235,7 +179,33 @@ var Game = {
             Game.scenes.nextLevel.update();
         }
     },
-    collision: function(a, b){
+    /*--------------------------------------------------
+    --------------->> Rendering-Loop <<-----------------
+    --------------------------------------------------*/
+    //Rendering-Loop, die wiederholt den Canvas zeichnet (Doku:Rekursiver Aufruf, FPS vom Browser bestimmt)
+    loop: function(){
+        Game.requestId = window.requestAnimationFrame(Game.loop);
+        Game.running = true;
+        Game.render();
+        Game.update();
+        console.log("Frame is running: "+ Game.requestId);
+        console.log("running: "+ Game.running);
+    },
+    pause: function(){
+        console.log("Frame stops: "+ Game.requestId);
+        cancelAnimationFrame(Game.requestId);
+        Game.running = false;
+        Game.entities.betti.cassetteSound.pause();
+    },
+    restart: function(){
+        Game.scenes.current = 'landingPage';
+        Game.entities.badElements.list = new Array();
+        Game.entities.goodElements.list = new Array();
+        Game.score = 0;
+        Game.entities.betti.init();
+        Game.loop();
+    },
+    /*collision: function(a, b){
         //TODO: Kollisionsberechnung auf Pixelgenau umstellen. Vorerst BoundingBox u Circle Methode ausreichend
         //Grundlage: http://www.virtual-maxim.de/pixelgenaue-kollisionserkennung/
         console.log ('a: ' + a);
@@ -254,8 +224,39 @@ var Game = {
             return false;
         
         return true;
+    },*/
+    /*--------------------------------------------------
+    --------------->> Hilfsfunktionen <<----------------
+    --------------------------------------------------*/
+    //Malfunktionen:
+    draw: {
+        drawImage: function(img,x,y){
+            Game.context.drawImage(img, x, y);
+        },
+        drawText: function(text, x, y, size, color){
+            Game.context.fillStyle = color;
+            Game.context.font = size + 'px Dosis';
+            Game.context.fillText(text, x, y);
+        },
+        drawRect: function(x,y,width,height,color){
+            Game.context.fillStyle = color || '#EEEEEE';
+            Game.context.fillRect(x,y,width,height);
+        },
+        drawCircle: function(x,y,radius,startAngle,endAngle,color){
+            Game.context.beginPath();
+            Game.context.fillStyle = color;
+            Game.context.arc(x,y,radius,startAngle,endAngle);
+            Game.context.fill();
+        },
+        drawLine: function(x1, y1, x2, y2, color){
+            Game.context.strokeStyle = color;
+            Game.context.beginPath();
+            Game.context.moveTo(x1, y1);
+            Game.context.lineTo(x2, y2);
+            Game.context.closePath();
+            Game.context.stroke();
+        }
     },
-
     /*--------------------------------------------------
     ---------------->> Asset Manager <<----------------
     --------------------------------------------------*/
@@ -314,7 +315,7 @@ var Game = {
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#429FDD');
                 Game.draw.drawText('Credits',Game.canvas.width/4,24,28,'#255');
                 Game.draw.drawText('Erstellt von Beate Ullmann  |  beate.ullmann@stud.fh-luebeck.de',Game.canvas.width/4,Game.canvas.height/14,22,'#255');
-                Game.draw.drawText('Sprites: no credits needed',Game.canvas.width/4,Game.canvas.height/9-3,22,'#255');
+                Game.draw.drawText('Sprites: Powerpuff Girls Snowboarding (https://www.spriters-resource.com)',Game.canvas.width/4,Game.canvas.height/9-3,22,'#255');
                 Game.draw.drawText('Sounds: Die Woodys - Fichtls Lied (Tony Marshall Production)',Game.canvas.width/4,Game.canvas.height/7,22,'#255');
                 Game.draw.drawText('Haindling - Pfeif drauf (Tony Marshall Production)',Game.canvas.width/4+70,Game.canvas.height/6+10,22,'#255');
                 Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2+50,Game.canvas.height/2+50,50,'#FFFFFF');
@@ -341,7 +342,7 @@ var Game = {
                 console.log(document.getElementById('playersName').value);
                 console.log ("button wurde geklickt");
                 localStorage.setItem('player', name);
-                Game.scenes.current = 'game';//Demo-Wechsel mit 'nextLevel'
+                Game.scenes.current = 'nextLevel';//Demo-Wechsel mit 'nextLevel'
                 document.getElementById('container').removeChild(document.getElementById('startButton'));
                 document.getElementById('container').removeChild(document.getElementById('trophy'));
                 document.getElementById('container').removeChild(document.getElementById('playersName'));
