@@ -770,8 +770,8 @@ var Game = {
                 Game.scenes.highscore.storePlayer(player);
                 //Spielabbruch
                 Game.pause();
-                Game.draw.drawText("Game over", 80, 350, 100, '#ff0000');
-                Game.draw.drawText("Press Return for Restart", 80, 450, 100, '#ff0000');
+                Game.draw.drawText("Game over", Game.canvas.width/3, 150, 100, '#ff0000');
+                Game.draw.drawText("Press Return for Restart", 180, 250, 100, '#ff0000');
                 
             },
         },
