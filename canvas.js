@@ -122,6 +122,7 @@ var Game = {
         Game.assets.addRessource('sprites/png/rock5.png');
         Game.assets.addRessource('sprites/png/rock6.png');
         Game.assets.addRessource('sprites/png/rock.png');
+        Game.assets.addRessource('sprites/png/gold1.png');
         Game.assets.addRessource('sprites/png/Donut_mini.png');
         //Game.assets.addRessource('sprites/png/musictape.png');
         //Game.assets.addRessource('sprites/png/betti_1_weich.png');
@@ -148,18 +149,21 @@ var Game = {
         if(Game.scenes.current == 'highscore'){
             Game.scenes.highscore.render();
             Game.backgroundGamesound.pause();
+            Game.backgroundCavesound.pause();
         }
         if(Game.scenes.current == 'loading'){
             Game.scenes.loading.render();
             Game.backgroundGamesound.pause();
+            Game.backgroundCavesound.pause()
         }
         if(Game.scenes.current == 'landingPage'){
             Game.scenes.landingPage.render();
             Game.backgroundGamesound.pause();
+            Game.backgroundCavesound.pause()
         }
         if(Game.scenes.current == 'game'){
             Game.scenes.game.render();
-            //Game.backgroundGamesound.play();
+            Game.backgroundCavesound.pause()
         }
         if(Game.scenes.current == 'nextLevel'){
             Game.scenes.nextLevel.render();
@@ -216,6 +220,7 @@ var Game = {
         Game.entities.badElements.list = new Array();
         Game.entities.goodElements.list = new Array();
         Game.score = 0;
+        Game.scenes.game.switchNextLevel = false;
         Game.entities.betti.init();
         Game.loop();
     },
@@ -422,7 +427,7 @@ var Game = {
                     }
                 }
                 //Prüfen ob Punktestand erreicht für Level Switch (Demo)
-                if(Game.score > 3){
+                if(Game.score > 1){//Demo: Punkteziel für nächstes Level anpassen
                     Game.scenes.game.switchNextLevel = true;
                 }
             }
@@ -942,7 +947,7 @@ var Game = {
             //Funktion: hinzufügen eines neuen badElements
             addBadElement: function(){
                 var badElement = {};
-                var typ = Math.floor((Math.random()*4)+1);
+                var typ = Math.floor((Math.random()*5)+1);
                 badElement.typ = typ;
                 if (typ == 1){
                   badElement.imgUrl = 'sprites/png/rock.png';  
@@ -953,8 +958,11 @@ var Game = {
                 if (typ == 3){
                     badElement.imgUrl = 'sprites/png/rock5.png';  
                 }
-                if (typ == 3){
+                if (typ == 4){
                     badElement.imgUrl = 'sprites/png/rock6.png';  
+                }
+                if (typ == 5){
+                    badElement.imgUrl = 'sprites/png/gold1.png';  
                 }
                 if (this.list.length == 0){
                     badElement.x = Game.canvas.width+10;
