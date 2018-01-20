@@ -93,6 +93,7 @@ var Game = {
         Game.assets.addRessource('sprites/png/betti_2.png');
         Game.assets.addRessource('sprites/png/betti_4.png');
         Game.assets.addRessource('sprites/png/snowGround1.png'); 
+        Game.assets.addRessource('sprites/png/snowGround2.png'); 
         Game.assets.addRessource('sprites/png/1.png');
         Game.assets.addRessource('sprites/png/2.png');
         Game.assets.addRessource('sprites/png/3.png');
@@ -157,6 +158,9 @@ var Game = {
         if(Game.scenes.current == 'nextLevel'){
             Game.scenes.nextLevel.render();
         }
+        if(Game.scenes.current == 'levelCrossing'){
+            Game.scenes.levelCrossing.render();
+        }
     },
     /*--------------------------------------------------
     ------------>> Update-Methode v. Game <<------------
@@ -177,6 +181,9 @@ var Game = {
         }
         if(Game.scenes.current == 'nextLevel'){
             Game.scenes.nextLevel.update();
+        }
+        if(Game.scenes.current == 'levelCrossing'){
+            Game.scenes.levelCrossing.update();
         }
     },
     /*--------------------------------------------------
@@ -287,8 +294,8 @@ var Game = {
                 }
             }
         },
-        /*--------------------------------------------------
-        ------------------->> Ladingpage <<-----------------
+        /*----------------------Szene-----------------------
+        ------------------->> Landingpage <<----------------
         --------------------------------------------------*/
         landingPage: {
             render: function(){
@@ -308,14 +315,11 @@ var Game = {
                 Game.draw.drawText('Credits',10,Game.canvas.height-55,15,'#CDD3CF');
                 Game.draw.drawText('Created by Beate Ullmann  ⋯  beate.ullmann@stud.fh-luebeck.de',10,Game.canvas.height-35,15,'#CDD3CF');
                 Game.draw.drawText('Sprites: Powerpuff Girls Snowboarding (www.spriters-resource.com)  ⋯ all other sprites from pixabay.com',10,Game.canvas.height-20,15,'#CDD3CF');
-                Game.draw.drawText('Sounds: Die Woodys - Fichtls Lied  ⋯ Haindling - Pfeif drauf',10,Game.canvas.height-5,15,'##FFF');
-                
-                //Game.entities.betti.render(); 
+                Game.draw.drawText('Sounds: Die Woodys - Fichtls Lied  ⋯ Haindling - Pfeif drauf',10,Game.canvas.height-5,15,'##FFF'); 
                 Game.pause();
                 window.removeEventListener('mousedown', Game.input.click,false);
             },
-            update: function(){
-                //Game.entities.betti.update();     
+            update: function(){     
             },
             startButton: function (){
                 var button = Game.assets.getAsset('sprites/png/StartButton.png');
@@ -331,7 +335,7 @@ var Game = {
                 console.log(document.getElementById('playersName').value);
                 console.log ("button wurde geklickt");
                 localStorage.setItem('player', name);
-                Game.scenes.current = 'game';//Demo-Wechsel mit 'nextLevel'
+                Game.scenes.current = 'game';//Demo-Wechsel mit 'nextLevel' oder 'levelCrossing'
                 document.getElementById('container').removeChild(document.getElementById('startButton'));
                 document.getElementById('container').removeChild(document.getElementById('trophy'));
                 document.getElementById('container').removeChild(document.getElementById('playersName'));
@@ -370,11 +374,12 @@ var Game = {
                 Game.loop();
             }
         },
-        /*--------------------------------------------------
+        /*--------------------Szene-------------------------
         -------------->> Spielwelt (1. Level) <<------------
         --------------------------------------------------*/
         game: {
             step: 3,
+            switchNextLevel: false,
             render: function(){
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_1.png'), 0, 0);
                 Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#800000');
@@ -384,6 +389,7 @@ var Game = {
                 Game.entities.betti.render();
                 Game.entities.badElements.render();
                 Game.entities.goodElements.render();
+                //Sicherstellen, dass Musik läuft:
                 if (Game.entities.betti.cassetteSound.paused){
                     Game.backgroundGamesound.play();
                 }
@@ -409,12 +415,92 @@ var Game = {
                                             
                     }
                 }
+                if(Game.score >3){
+                    //Game.scenes.current = 'levelCrossing';
+                    Game.scenes.game.switchNextLevel = true;
+                }
             }
         },
+        /*---------------------Szene------------------------
+        ------------------->> Übergang <<-------------------
+        --------------------------------------------------*/
         levelCrossing:{
-         //kann glaub ich weg   
+            backgroundY: 0,
+            scrollSpeed: 7,
+            scrolling: false,
+            numberOfUpdates: 0,
+            triggerShowSnowEnd: 1,
+            render: function(){
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBGback.png'), 0, this.backgroundY+Game.canvas.height);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_1.png'), 0, this.backgroundY);
+                Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#FFF');
+                Game.entities.forrest.render();
+                
+                if (this.numberOfUpdates >= this.triggerShowSnowEnd){
+                    Game.entities.snowEnd.render();
+                    Game.entities.badElements.maxBadElements = 0;
+                    Game.entities.goodElements.maxGoodElements = 0;
+                }
+                else {
+                    Game.entities.snowGround.render();
+                }
+                Game.entities.betti.render();
+                //Sicherstellen, dass Musik läuft:
+                if (Game.entities.betti.cassetteSound.paused){
+                    Game.backgroundGamesound.play();
+                }
+                if (this.scrolling){
+                    Game.draw.drawText("Hurray! Level 2", 180, 350, 100, 'rgb(214,242,255)');
+                }
+                else{
+                    Game.entities.badElements.render();//-->durch andere badElements ersetzen (in die Entities ist schlecht)
+                    Game.entities.goodElements.render();
+                }
+            },
+            update: function(){
+                if(Game.entities.betti.collisionWithElement(Game.entities.snowEnd.canyon)){
+                    console.log ("Achtung Schlucht");
+                    this.scrolling = true;
+                }
+                //Berechnung für das Scrolling up
+                if(this.scrolling && this.backgroundY>Game.canvas.height * -1){
+                    this.backgroundY = this.backgroundY - this.scrollSpeed;
+                    Game.entities.forrest.y = Game.entities.forrest.y - this.scrollSpeed;
+                    Game.entities.snowEnd.y = Game.entities.snowEnd.y - this.scrollSpeed;
+                    
+                }
+                if (this.backgroundY <= Game.canvas.height * -1){
+                    this.scrolling = false;
+                    Game.scenes.current = 'nextLevel';
+                }
+                Game.entities.forrest.update();
+                Game.entities.snowGround.update();
+                Game.entities.snowEnd.update();
+                Game.entities.betti.update();
+                Game.entities.badElements.update();//-->durch andere badElements ersetzen
+                Game.entities.goodElements.update();
+                //BadElements durchlaufen und auf Kollision überprüfen
+                for (var i=0; i<Game.entities.badElements.list.length; i++){
+                    if(Game.entities.betti.collisionWithBadElement(Game.entities.badElements.list[i])){//kann bleiben weil allgem. Function
+                        console.log('Kollision! mit BadFoo ' + Game.entities.badElements.list[i]);
+                        Game.entities.badElements.handleCollision(Game.entities.badElements.list[i]);
+                        break;
+                    }
+                }
+                for (var i=0; i<Game.entities.goodElements.list.length; i++){
+                    if(Game.entities.betti.collisionWithElement(Game.entities.goodElements.list[i])){
+                        console.log('Kollision! mit GoodFoo ' + Game.entities.goodElements.list[i]);
+                        Game.entities.goodElements.handleCollision(Game.entities.goodElements.list[i]);
+                                            
+                    }
+                }
+                if (this.numberOfUpdates < this.triggerShowSnowEnd){
+                    this.numberOfUpdates++;
+                }
+                console.log(this.numberOfUpdates);
+            } 
         },
-        /*--------------------------------------------------
+        /*---------------------Szene------------------------
         -------------->> Spielwelt (2. Level) <<------------
         --------------------------------------------------*/
         nextLevel:{
@@ -429,10 +515,11 @@ var Game = {
                 Game.entities.betti.render();
                 Game.entities.badElements.render();//-->durch andere badElements ersetzen (in die Entities ist schlecht)
                 Game.entities.goodElements.render();
-                Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, 'rgba(9,41,43,'+this.opacity+')');
+                /*Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, 'rgba(9,41,43,'+this.opacity+')');
                 if (this.opacity>0.2){
                     Game.draw.drawText("Hurray! Level 2", 80, 350, 100, 'rgb(214,242,255)');
-                }
+                }*/
+                //Sicherstellen, dass Musik läuft:
                 if (Game.entities.betti.cassetteSound.paused){
                     Game.backgroundGamesound.play();// vielleicht anderer Sound: Tropfsteinhöle
                 }
@@ -442,7 +529,10 @@ var Game = {
                     this.opacity -=0.01;
                 }
                 Game.entities.caveBGfront.update();
+                Game.entities.snowGround.update();
                 Game.entities.betti.update();
+                Game.entities.badElements.maxBadElements = 10;
+                Game.entities.goodElements.maxGoodElements = 10;
                 Game.entities.badElements.update();//-->durch andere badElements ersetzen
                 Game.entities.goodElements.update();
                 //BadElements durchlaufen und auf Kollision überprüfen
@@ -462,7 +552,7 @@ var Game = {
                 }
             }
         },
-        /*--------------------------------------------------
+        /*----------------------Szene-----------------------
         ----------------->> Highscoreliste <<---------------
         --------------------------------------------------*/
         highscore:{
@@ -544,9 +634,10 @@ var Game = {
         --------------------------------------------------*/
         forrest:{
             x:0,
+            y:419,
             render: function(){
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_0.png'), this.x, 419);
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_0.png'), this.x+1500, 419);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_0.png'), this.x, this.y);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_0.png'), this.x+1500, this.y);
             },
             update: function(){
                 this.x -= 0.5;
@@ -560,20 +651,51 @@ var Game = {
         --------------------------------------------------*/
         snowGround:{
             x:0,
+            y:650,
             render: function(){
                 /*for (var i=0; i<1406; i+=128){
                     Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), this.x+i, 650);
                 }*/ //vielleicht die for schleife löschen
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x, 650);
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x+1278, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x, this.y);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x+1278, this.y);
             },
             update: function(){
                 this.x -= 3;
                 if (this.x < -1279){
                     this.x = 0;
+                    if(Game.scenes.game.switchNextLevel){
+                        Game.scenes.current = 'levelCrossing';
+                    }
                 }
             }
         },
+        /*--------------------------------------------------
+        ------------->> Ani. Schneepisten-Ende <<-----------
+        --------------------------------------------------*/
+        snowEnd:{
+            x:0,
+            y:650,
+            
+            //Schlucht:
+            canyon:{
+                x:2570,
+                y:650,
+                width:400,
+                height:300
+            },
+            render: function(){
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x, this.y);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround2.png'), this.x+1278, this.y);
+                Game.draw.drawRect(this.canyon.x, this.canyon.y, this.canyon.width, this.canyon.height, 'red');
+            },
+            update: function(){
+                this.x -= 3;
+                this.canyon.x -= 3;
+            }
+        },
+        /*--------------------------------------------------
+        ------------>> Ani. Höhle v. 2. Level <<------
+        --------------------------------------------------*/
         caveBGfront:{
             x:0,
             render: function(){
