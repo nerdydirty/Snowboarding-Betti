@@ -92,8 +92,7 @@ var Game = {
         Game.assets.addRessource('sprites/png/betti_1.png');
         Game.assets.addRessource('sprites/png/betti_2.png');
         Game.assets.addRessource('sprites/png/betti_4.png');
-        Game.assets.addRessource('sprites/png/snowGround.png');
-        Game.assets.addRessource('sprites/png/snowGroundtest.png');
+        Game.assets.addRessource('sprites/png/snowGround1.png'); 
         Game.assets.addRessource('sprites/png/1.png');
         Game.assets.addRessource('sprites/png/2.png');
         Game.assets.addRessource('sprites/png/3.png');
@@ -121,6 +120,7 @@ var Game = {
         //Game.assets.addRessource('sprites/png/betti_1_weich.png');
         Game.assets.addRessource('sprites/png/mountains_0.png');
         Game.assets.addRessource('sprites/png/mountains_1.png');
+        Game.assets.addRessource('sprites/png/forrest.png');
         Game.assets.addRessource('sprites/png/caveBG.png');
         Game.assets.addRessource('sprites/png/caveBGfront.png');
         Game.assets.addRessource('sprites/png/caveBGback.png');
@@ -205,26 +205,6 @@ var Game = {
         Game.entities.betti.init();
         Game.loop();
     },
-    /*collision: function(a, b){
-        //TODO: Kollisionsberechnung auf Pixelgenau umstellen. Vorerst BoundingBox u Circle Methode ausreichend
-        //Grundlage: http://www.virtual-maxim.de/pixelgenaue-kollisionserkennung/
-        console.log ('a: ' + a);
-        console.log ('b: ' + b);
-        
-        if((a.x + a.width())<=b.x)
-            return false;
-        
-        if((a.y + a.height())<=b.y)
-            return false;
-        
-        if((b.x + b.width)<=a.x)
-            return false;
-        
-        if((b.y + b.height)<=a.y)
-            return false;
-        
-        return true;
-    },*/
     /*--------------------------------------------------
     --------------->> Hilfsfunktionen <<----------------
     --------------------------------------------------*/
@@ -313,27 +293,36 @@ var Game = {
         landingPage: {
             render: function(){
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#429FDD');
-                Game.draw.drawText('Credits',Game.canvas.width/4,24,28,'#255');
-                Game.draw.drawText('Erstellt von Beate Ullmann  |  beate.ullmann@stud.fh-luebeck.de',Game.canvas.width/4,Game.canvas.height/14,22,'#255');
-                Game.draw.drawText('Sprites: Powerpuff Girls Snowboarding (https://www.spriters-resource.com)',Game.canvas.width/4,Game.canvas.height/9-3,22,'#255');
-                Game.draw.drawText('Sounds: Die Woodys - Fichtls Lied (Tony Marshall Production)',Game.canvas.width/4,Game.canvas.height/7,22,'#255');
-                Game.draw.drawText('Haindling - Pfeif drauf (Tony Marshall Production)',Game.canvas.width/4+70,Game.canvas.height/6+10,22,'#255');
-                Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2+50,Game.canvas.height/2+50,50,'#FFFFFF');
-                Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'))
+                Game.draw.drawLine(0, 300, 1278, 300, '#FFF');
+                //Game.draw.drawRect(0, 650, 1278, 650, '#0E8A3A');
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'), Game.entities.betti.x, 255);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_2.png'), Game.entities.betti.x+70,200);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_4.png'), Game.entities.betti.x+200,210);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'), 400, 255);
+                Game.draw.drawText('Press SPACE to jump',190,Game.canvas.height/2-68,20,'#FFFFFF');
+                Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2+50,Game.canvas.height/2-120,50,'#FFFFFF');
                 this.highscoreButton();
                 this.startButton();
                 this.inputField();
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_0.png'), 0,434);
+                Game.draw.drawText('Credits',10,Game.canvas.height-55,15,'#CDD3CF');
+                Game.draw.drawText('Created by Beate Ullmann  ⋯  beate.ullmann@stud.fh-luebeck.de',10,Game.canvas.height-35,15,'#CDD3CF');
+                Game.draw.drawText('Sprites: Powerpuff Girls Snowboarding (www.spriters-resource.com)  ⋯ all other sprites from pixabay.com',10,Game.canvas.height-20,15,'#CDD3CF');
+                Game.draw.drawText('Sounds: Die Woodys - Fichtls Lied  ⋯ Haindling - Pfeif drauf',10,Game.canvas.height-5,15,'##FFF');
+                
+                //Game.entities.betti.render(); 
                 Game.pause();
                 window.removeEventListener('mousedown', Game.input.click,false);
             },
             update: function(){
+                //Game.entities.betti.update();     
             },
             startButton: function (){
                 var button = Game.assets.getAsset('sprites/png/StartButton.png');
                 button.id = 'startButton';
                 button.style.position = 'absolute';
                 button.style.left = (Game.canvas.width-180)+'px';
-                button.style.top = (Game.canvas.height/2-62)+'px';
+                button.style.top = (Game.canvas.height/2-215)+'px';
                 button.addEventListener('click',this.startPlay, false);
                 document.getElementById('container').appendChild(button);
             },
@@ -342,7 +331,7 @@ var Game = {
                 console.log(document.getElementById('playersName').value);
                 console.log ("button wurde geklickt");
                 localStorage.setItem('player', name);
-                Game.scenes.current = 'nextLevel';//Demo-Wechsel mit 'nextLevel'
+                Game.scenes.current = 'game';//Demo-Wechsel mit 'nextLevel'
                 document.getElementById('container').removeChild(document.getElementById('startButton'));
                 document.getElementById('container').removeChild(document.getElementById('trophy'));
                 document.getElementById('container').removeChild(document.getElementById('playersName'));
@@ -353,11 +342,11 @@ var Game = {
                 input.id = 'playersName';
                 input.type = 'text';
                 input.style.position = 'absolute';
-                input.style.width = '200px';
-                input.style.height = '50px';
+                input.style.width = '300px';
+                input.style.height = '40px';
                 input.style.fontSize = '20px';
-                input.style.left = (Game.canvas.width/2+130)+'px';
-                input.style.top = (Game.canvas.height/2+130)+'px';
+                input.style.left = (Game.canvas.width/2+80)+'px';
+                input.style.top = (Game.canvas.height-380)+'px';
                 input.placeholder = 'Enter your name';
                 
                 if (!document.getElementById('playersName')){
@@ -369,7 +358,7 @@ var Game = {
                 button.id = 'trophy';
                 button.style.position = 'absolute';
                 button.style.left = (Game.canvas.width-180)+'px';
-                button.style.top = (Game.canvas.height/2+100)+'px';
+                button.style.top = (Game.canvas.height-410)+'px';
                 button.addEventListener('click',this.showHighscore, false);
                 document.getElementById('container').appendChild(button); 
             },
@@ -401,6 +390,7 @@ var Game = {
             },
             update: function(){
                 Game.entities.forrest.update();
+                Game.entities.snowGround.update();
                 Game.entities.betti.update();
                 Game.entities.badElements.update();
                 Game.entities.goodElements.update();
@@ -566,19 +556,20 @@ var Game = {
             }
         },
         /*--------------------------------------------------
-        -------------->> (todo: Ani.) Schneepiste v. 1. Level <<-----------
+        ------------>> Ani. Schneepiste v. 1. Level <<------
         --------------------------------------------------*/
         snowGround:{
             x:0,
             render: function(){
-                for (var i=0; i<1278; i+=128){
-                    Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), i, 650);
-                }
-                //Game.draw.drawImage(Game.assets.getAsset('sprites/png/3.png'), this.x+896, 650);
+                /*for (var i=0; i<1406; i+=128){
+                    Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), this.x+i, 650);
+                }*/ //vielleicht die for schleife löschen
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x, 650);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x+1278, 650);
             },
             update: function(){
-                this.x -= 0.5;
-                if (this.x < -128){
+                this.x -= 3;
+                if (this.x < -1279){
                     this.x = 0;
                 }
             }
@@ -725,11 +716,12 @@ var Game = {
                     this.addBadElement();   
                 }
                 
-                //Element bewegen
+                //Berechnung der neuen Position aller badElements
                 for(var i=0; i<this.list.length; i++){
                     this.list[i].x -= this.step;
-                    //prüfen ob Element außerhalb der Canvas ist
-                    //wenn ja, Element aus List entfernen
+                }
+                //prüfen ob Element außerhalb der Canvas ist, nachdem Position berechnet wurde (ohne 2. for-Schleife ruckelt es) und entfernen des nicht mehr sichtbaren Elements aus dem Array
+                for(var i=0; i<this.list.length; i++){
                     if(this.list[i].x+this.list[i].width <= 0){
                       this.list.splice(i, 1);  
                     }
@@ -785,7 +777,7 @@ var Game = {
         },
         goodElements:{
             list: new Array(),
-            maxGoodElements: 10,
+            maxGoodElements: 3,
             step: 4,
             render: function(){
                 //draw list und nicht nur ein element
@@ -805,10 +797,12 @@ var Game = {
                 //Element bewegen
                 for(var i=0; i<this.list.length; i++){
                     this.list[i].x -= this.step;
+                }
                     //prüfen ob Element außerhalb der Canvas ist
                     //wenn ja, Element aus List entfernen
+                for(var i=0; i<this.list.length; i++){
                     if(this.list[i].x+this.list[i].width <= 0){
-                      this.list.splice(i, 1);  
+                        this.list.splice(i, 1);  
                     }
                 }
             },
