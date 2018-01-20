@@ -74,7 +74,9 @@ var Game = {
         --------------------------------------------------*/
         //Audio laden:
         Game.backgroundGamesound = new Audio('audio/background.mp3');
+        Game.backgroundCavesound = new Audio('audio/cavernsound.mp3');
         Game.backgroundGamesound.loop = true;
+        Game.backgroundCavesound.loop = true;
         //Game.backgroundGamesound.play(); --> ICH MERKE KEINEN UNTERSCHIED EGAL OB DRIN ODER NICHT...
         Game.entities.betti.jumpSound = new Audio('audio/Jump-SoundBible.com-1007297584.mp3');
         Game.entities.betti.jumpSound.loop = false;
@@ -157,6 +159,7 @@ var Game = {
         }
         if(Game.scenes.current == 'nextLevel'){
             Game.scenes.nextLevel.render();
+            Game.backgroundGamesound.pause();
         }
         if(Game.scenes.current == 'levelCrossing'){
             Game.scenes.levelCrossing.render();
@@ -312,10 +315,10 @@ var Game = {
                 this.startButton();
                 this.inputField();
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_0.png'), 0,434);
-                Game.draw.drawText('Credits',10,Game.canvas.height-55,15,'#CDD3CF');
-                Game.draw.drawText('Created by Beate Ullmann  ⋯  beate.ullmann@stud.fh-luebeck.de',10,Game.canvas.height-35,15,'#CDD3CF');
-                Game.draw.drawText('Sprites: Powerpuff Girls Snowboarding (www.spriters-resource.com)  ⋯ all other sprites from pixabay.com',10,Game.canvas.height-20,15,'#CDD3CF');
-                Game.draw.drawText('Sounds: Die Woodys - Fichtls Lied  ⋯ Haindling - Pfeif drauf',10,Game.canvas.height-5,15,'##FFF'); 
+                Game.draw.drawText('Credits',10,Game.canvas.height-75,15,'#CDD3CF');
+                Game.draw.drawText('Created by Beate Ullmann  ⋯  beate.ullmann@stud.fh-luebeck.de',10,Game.canvas.height-55,15,'#CDD3CF');
+                Game.draw.drawText('Sprites: Powerpuff Girls Snowboarding (www.spriters-resource.com)  ⋯  all other sprites from pixabay.com',10,Game.canvas.height-40,15,'#CDD3CF');
+                Game.draw.drawText('Sounds: Die Woodys - Fichtls Lied  ⋯  Haindling - Pfeif drauf  ⋯  all other sound effects from SoundBible.com',10,Game.canvas.height-25,15,'##FFF'); 
                 Game.pause();
             },
             update: function(){     
@@ -414,8 +417,8 @@ var Game = {
                                             
                     }
                 }
-                if(Game.score >3){
-                    //Game.scenes.current = 'levelCrossing';
+                //Prüfen ob Punktestand erreicht für Level Switch (Demo)
+                if(Game.score > 3){
                     Game.scenes.game.switchNextLevel = true;
                 }
             }
@@ -520,7 +523,7 @@ var Game = {
                 }*/
                 //Sicherstellen, dass Musik läuft:
                 if (Game.entities.betti.cassetteSound.paused){
-                    Game.backgroundGamesound.play();// vielleicht anderer Sound: Tropfsteinhöle
+                    Game.backgroundCavesound.play();
                 }
             },
             update: function(){
@@ -967,6 +970,7 @@ var Game = {
                 }
                 if (element.typ ==2){
                     Game.backgroundGamesound.pause();
+                    Game.backgroundCavesound.pause();//später raus, wenn andere goodElements drin sind, sonst doppel
                     Game.entities.betti.cassetteSound.play();
                 }
                 this.removeGoodElement(element);
