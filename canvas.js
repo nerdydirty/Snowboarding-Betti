@@ -317,7 +317,6 @@ var Game = {
                 Game.draw.drawText('Sprites: Powerpuff Girls Snowboarding (www.spriters-resource.com)  ⋯ all other sprites from pixabay.com',10,Game.canvas.height-20,15,'#CDD3CF');
                 Game.draw.drawText('Sounds: Die Woodys - Fichtls Lied  ⋯ Haindling - Pfeif drauf',10,Game.canvas.height-5,15,'##FFF'); 
                 Game.pause();
-                window.removeEventListener('mousedown', Game.input.click,false);
             },
             update: function(){     
             },
@@ -433,7 +432,7 @@ var Game = {
             render: function(){
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBGback.png'), 0, this.backgroundY+Game.canvas.height);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_1.png'), 0, this.backgroundY);
-                Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#FFF');
+                Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#800000');
                 Game.entities.forrest.render();
                 
                 if (this.numberOfUpdates >= this.triggerShowSnowEnd){
@@ -574,7 +573,6 @@ var Game = {
                     }
                 }
                 Game.pause();
-                window.removeEventListener('mousedown', Game.input.click,false);
             },
             update: function(){
             },
@@ -686,7 +684,8 @@ var Game = {
             render: function(){
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x, this.y);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround2.png'), this.x+1278, this.y);
-                Game.draw.drawRect(this.canyon.x, this.canyon.y, this.canyon.width, this.canyon.height, 'red');
+                //Zur Demo einkommentieren
+                //Game.draw.drawRect(this.canyon.x, this.canyon.y, this.canyon.width, this.canyon.height, 'red');
             },
             update: function(){
                 this.x -= 3;
@@ -976,9 +975,9 @@ var Game = {
     },
     //Mausklick + Tastatureingaben:
     input: {
+        /* Verarbeitung von Click auf der Canvas - wird aktuell nicht benötigt
         x: 0,
         y: 0,
-        radius: 10,
         clicked: false,
         click: function(e){
             console.log("mousedown in " + e.x + ", " + e.y);
@@ -986,7 +985,7 @@ var Game = {
             Game.input.x = e.x;
             Game.input.y = e.y;
             Game.input.clicked = true;
-        },
+        },*/
         keydown: function(e){
             //Werten erstmal nur einen Tastendruck auf einmal aus - nicht mehrer Tasten in Kombination TODO
             console.log (e.keyCode);
@@ -1018,5 +1017,4 @@ var Game = {
 };
 
 window.addEventListener('load', Game.init, false);
-window.addEventListener('mousedown', Game.input.click,false);//kann vielleicht raus - prüfen ob es überhaupt verwendet wird...
 window.addEventListener('keydown', Game.input.keydown,false);

@@ -18,5 +18,21 @@
     border: 1px solid white;
     width: 1278px;
     height: 735px;
+    font-family: 'Dosis';
   
 }
+/* dosis-regular - latin */
+@font-face {
+    font-family: 'Dosis';
+    font-style: normal;
+    font-weight: 400;
+    src: url('fonts/dosis-v7-latin-regular.eot'); /* IE9 Compat Modes */
+    src: local('Dosis Regular'), local('Dosis-Regular'),
+         url('fonts/dosis-v7-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('fonts/dosis-v7-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+         url('fonts/dosis-v7-latin-regular.woff') format('woff'), /* Modern Browsers */
+         url('fonts/dosis-v7-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+         url('fonts/dosis-v7-latin-regular.svg#Dosis') format('svg'); /* Legacy iOS */
+
+
+  }
