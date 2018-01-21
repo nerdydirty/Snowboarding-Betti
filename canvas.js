@@ -41,10 +41,10 @@ var Game = {
                     }
                     return 0;
                 });
-            }
+            };
             tx.oncomplete = function(){
                 db.close();
-            }
+            };
         };
         //Context auf dem gemalt wird:
         Game.canvas = document.getElementById('canvas');
@@ -67,7 +67,7 @@ var Game = {
                 window.mozRequestAnimationFrame ||
                 window.oRequestAnimationFrame ||
                 window.msRequestAnimationFrame ||
-                clearTimeout
+                clearTimeout;
         })();
         /*--------------------------------------------------
         -------------------->> Audio <<---------------------
@@ -182,16 +182,16 @@ var Game = {
         if(Game.scenes.current == 'loading'){
             Game.scenes.loading.render();
             Game.backgroundGamesound.pause();
-            Game.backgroundCavesound.pause()
+            Game.backgroundCavesound.pause();
         }
         if(Game.scenes.current == 'landingPage'){
             Game.scenes.landingPage.render();
             Game.backgroundGamesound.pause();
-            Game.backgroundCavesound.pause()
+            Game.backgroundCavesound.pause();
         }
         if(Game.scenes.current == 'game'){
             Game.scenes.game.render();
-            Game.backgroundCavesound.pause()
+            Game.backgroundCavesound.pause();
         }
         if(Game.scenes.current == 'nextLevel'){
             Game.scenes.nextLevel.render();
@@ -285,8 +285,8 @@ var Game = {
     ---------------->> Asset Manager <<----------------
     --------------------------------------------------*/
     assets: {
-        list: new Array(),
-        cache: new Array(),
+        list: [],
+        cache: [],
         done: 0,
         addRessource: function(url) {
             Game.assets.list.push(url);
@@ -391,6 +391,7 @@ var Game = {
                 input.style.fontSize = '20px';
                 input.style.left = (Game.canvas.width/2+80)+'px';
                 input.style.top = (Game.canvas.height-380)+'px';
+                input.style.paddingLeft ='10px';
                 input.placeholder = 'Enter your name';
                 
                 if (!document.getElementById('playersName')){
@@ -649,7 +650,7 @@ var Game = {
                         }
                         return 0;
                     });
-                }
+                };
             },
             landingPageButton: function (){
                 var button = Game.assets.getAsset('sprites/png/landingPageButton.png');
@@ -708,7 +709,7 @@ var Game = {
             render: function(){
                 /*for (var i=0; i<1406; i+=128){
                     Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), this.x+i, 650);
-                }*/ //vielleicht die for schleife löschen
+                }*/ //vielleicht die for schleife löschen, weil dies das alte kleine Bild ist, was ich in PS als großes images gemacht habe
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x, this.y);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x+1278, this.y);
             },
