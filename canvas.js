@@ -234,11 +234,11 @@ var Game = {
         Game.running = true;
         Game.render();
         Game.update();
-        console.log("Frame is running: "+ Game.requestId);
-        console.log("running: "+ Game.running);
+        //console.log("Frame is running: "+ Game.requestId);
+        //console.log("running: "+ Game.running);
     },
     pause: function(){
-        console.log("Frame stops: "+ Game.requestId);
+        //console.log("Frame stops: "+ Game.requestId);
         cancelAnimationFrame(Game.requestId);
         Game.running = false;
         Game.entities.betti.cassetteSound.pause();
@@ -326,7 +326,7 @@ var Game = {
             },
             update: function(){
                 if(Game.assets.isDone() == true){
-                    console.log('Alle Bilder geladen');
+                    //console.log('Alle Bilder geladen');
                     //Bettis Höhe + Breite kann erst jetzt ermittelt werden, wenn das Bild geladen ist
                     Game.entities.betti.init();
                     Game.scenes.current = 'landingPage';
@@ -372,8 +372,8 @@ var Game = {
             },
             startPlay: function(event){
                 var name = document.getElementById('playersName').value;
-                console.log(document.getElementById('playersName').value);
-                console.log ("button wurde geklickt");
+                //console.log(document.getElementById('playersName').value);
+                //console.log ("button wurde geklickt");
                 localStorage.setItem('player', name);
                 Game.scenes.current = 'game';//Demo-Wechsel mit 'nextLevel' oder 'levelCrossing'
                 document.getElementById('container').removeChild(document.getElementById('startButton'));
@@ -445,14 +445,14 @@ var Game = {
                 //BadElements durchlaufen und auf Kollision überprüfen
                 for (var i=0; i<Game.entities.badElements.list.length; i++){
                     if(Game.entities.betti.collisionWithBadElement(Game.entities.badElements.list[i])){
-                        console.log('Kollision! mit BadFoo ' + Game.entities.badElements.list[i]);
+                        //console.log('Kollision! mit BadFoo ' + Game.entities.badElements.list[i]);
                         Game.entities.badElements.handleCollision(Game.entities.badElements.list[i]);
                         break;
                     }
                 }
                 for (var i=0; i<Game.entities.goodElements.list.length; i++){
                     if(Game.entities.betti.collisionWithElement(Game.entities.goodElements.list[i])){
-                        console.log('Kollision! mit GoodFoo ' + Game.entities.goodElements.list[i]);
+                        //console.log('Kollision! mit GoodFoo ' + Game.entities.goodElements.list[i]);
                         Game.entities.goodElements.handleCollision(Game.entities.goodElements.list[i]);
                                             
                     }
@@ -503,7 +503,7 @@ var Game = {
             },
             update: function(){
                 if(Game.entities.betti.collisionWithElement(Game.entities.snowEnd.canyon)){
-                    console.log ("Achtung Schlucht");
+                    //console.log ("Achtung Schlucht");
                     this.scrolling = true;
                 }
                 //Berechnung für das Scrolling up
@@ -528,14 +528,14 @@ var Game = {
                 //BadElements durchlaufen und auf Kollision überprüfen
                 for (var i=0; i<Game.entities.badElements.list.length; i++){
                     if(Game.entities.betti.collisionWithBadElement(Game.entities.badElements.list[i])){//kann bleiben weil allgem. Function
-                        console.log('Kollision! mit BadFoo ' + Game.entities.badElements.list[i]);
+                        //console.log('Kollision! mit BadFoo ' + Game.entities.badElements.list[i]);
                         Game.entities.badElements.handleCollision(Game.entities.badElements.list[i]);
                         break;
                     }
                 }
                 for (var i=0; i<Game.entities.goodElements.list.length; i++){
                     if(Game.entities.betti.collisionWithElement(Game.entities.goodElements.list[i])){
-                        console.log('Kollision! mit GoodFoo ' + Game.entities.goodElements.list[i]);
+                        //console.log('Kollision! mit GoodFoo ' + Game.entities.goodElements.list[i]);
                         Game.entities.goodElements.handleCollision(Game.entities.goodElements.list[i]);
                                             
                     }
@@ -543,7 +543,7 @@ var Game = {
                 if (this.numberOfUpdates < this.triggerShowSnowEnd){
                     this.numberOfUpdates++;
                 }
-                console.log(this.numberOfUpdates);
+                //console.log(this.numberOfUpdates);
             } 
         },
         /*---------------------Szene------------------------
@@ -585,14 +585,14 @@ var Game = {
                 //badRocks durchlaufen und auf Kollision überprüfen
                 for (var i=0; i<Game.entities.badRocks.list.length; i++){
                     if(Game.entities.betti.collisionWithBadElement(Game.entities.badRocks.list[i])){//kann bleiben weil allgem. Function
-                        console.log('Kollision! mit BadFoo ' + Game.entities.badRocks.list[i]);
+                        //console.log('Kollision! mit BadFoo ' + Game.entities.badRocks.list[i]);
                         Game.entities.badRocks.handleCollision(Game.entities.badRocks.list[i]);
                         break;
                     }
                 }
                 for (var i=0; i<Game.entities.goodElements.list.length; i++){
                     if(Game.entities.betti.collisionWithElement(Game.entities.goodElements.list[i])){
-                        console.log('Kollision! mit GoodFoo ' + Game.entities.goodElements.list[i]);
+                        //console.log('Kollision! mit GoodFoo ' + Game.entities.goodElements.list[i]);
                         Game.entities.goodElements.handleCollision(Game.entities.goodElements.list[i]);
                                             
                     }
@@ -662,7 +662,7 @@ var Game = {
             },
             jumpToLandingPage: function (){
                 Game.scenes.current = 'landingPage';
-                console.log('click');
+                //console.log('click');
                 document.getElementById('container').removeChild(document.getElementById('landingPageButton'));
                 Game.loop();
             }
@@ -1124,10 +1124,10 @@ var Game = {
         },*/
         keydown: function(e){
             //Werten erstmal nur einen Tastendruck auf einmal aus - nicht mehrer Tasten in Kombination TODO
-            console.log (e.keyCode);
+            //console.log (e.keyCode);
             switch (e.keyCode){
                 case 32://Leertaste
-                    console.log("Leertaste gedrückt");
+                    //console.log("Leertaste gedrückt");
                     Game.entities.betti.jump();
                     break;
                 case 13://Return
@@ -1136,16 +1136,16 @@ var Game = {
                     }
                     break;
                 case 37: //Pfeil links
-                    console.log("Pfeiltaste links gedrückt");
+                    //console.log("Pfeiltaste links gedrückt");
                     break;
                 case 39://Pfeil rechts
-                    console.log("Pfeiltaste rechts gedrückt");
+                    //console.log("Pfeiltaste rechts gedrückt");
                     break;
                 case 38://Pfeil oben
-                    console.log("Pfeiltaste oben gedrückt");
+                    //console.log("Pfeiltaste oben gedrückt");
                     break;
                 case 40://Pfeil unten
-                    console.log("Pfeiltaste unten gedrückt");
+                    //console.log("Pfeiltaste unten gedrückt");
                     break; 
             }
         }
