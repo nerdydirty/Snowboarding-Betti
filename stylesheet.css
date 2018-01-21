@@ -13,6 +13,9 @@
     left: 0;
     right: 0;
 }
+#playersName{
+    border-radius: 30px;
+}
 
 #canvas {
     border: 1px solid white;

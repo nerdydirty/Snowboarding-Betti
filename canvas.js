@@ -127,6 +127,7 @@ var Game = {
         //Game.assets.addRessource('sprites/png/musictape.png');
         //Game.assets.addRessource('sprites/png/betti_1_weich.png');
         Game.assets.addRessource('sprites/png/mountains_0.png');
+        Game.assets.addRessource('sprites/png/monument-valley-background.png');
         Game.assets.addRessource('sprites/png/mountains_1.png');
         Game.assets.addRessource('sprites/png/forrest.png');
         Game.assets.addRessource('sprites/png/caveBG.png');
@@ -312,12 +313,14 @@ var Game = {
         landingPage: {
             render: function(){
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#429FDD');
-                Game.draw.drawLine(0, 300, 1278, 300, '#FFF');
                 //Game.draw.drawRect(0, 650, 1278, 650, '#0E8A3A');
+                //Game.draw.drawImage(Game.assets.getAsset('sprites/png/monument-valley-background.png'), 0,0);
+                Game.draw.drawLine(0, 300, 1278, 300, '#FFF');
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'), Game.entities.betti.x, 255);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_2.png'), Game.entities.betti.x+70,200);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_4.png'), Game.entities.betti.x+200,210);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'), 400, 255);
+                Game.draw.drawText('Collect as much goodies as you can, but beware of evil things!',50,+160,20,'#FFFFFF');
                 Game.draw.drawText('Press SPACE to jump',190,Game.canvas.height/2-68,20,'#FFFFFF');
                 Game.draw.drawText('Snowboarding Betti',Game.canvas.width/2+50,Game.canvas.height/2-120,50,'#FFFFFF');
                 this.highscoreButton();
