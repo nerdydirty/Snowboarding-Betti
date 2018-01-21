@@ -14,8 +14,9 @@ var Game = {
     -------------------------------------------------------*/
     init: function(){
         /*--------------------------------------------------
-                --------------->> ?? <<-------------
+        --->> DB auslesen und in Highscorelist gepusht <<---
         --------------------------------------------------*/
+        Game.scenes.highscore.init();
         var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
         var open = indexedDB.open("snowboarding-DB",1);
         open.onupgradeneeded = function(){
@@ -96,24 +97,7 @@ var Game = {
         Game.assets.addRessource('sprites/png/betti_4.png');
         Game.assets.addRessource('sprites/png/snowGround1.png'); 
         Game.assets.addRessource('sprites/png/snowGround2.png'); 
-        Game.assets.addRessource('sprites/png/1.png');
-        Game.assets.addRessource('sprites/png/2.png');
-        Game.assets.addRessource('sprites/png/3.png');
-        Game.assets.addRessource('sprites/png/4.png');
-        Game.assets.addRessource('sprites/png/5.png');
-        Game.assets.addRessource('sprites/png/6.png');
-        Game.assets.addRessource('sprites/png/7.png');
-        Game.assets.addRessource('sprites/png/8.png');
-        Game.assets.addRessource('sprites/png/9.png');
-        Game.assets.addRessource('sprites/png/10.png');
-        Game.assets.addRessource('sprites/png/11.png');
-        Game.assets.addRessource('sprites/png/12.png');
-        Game.assets.addRessource('sprites/png/13.png');
-        Game.assets.addRessource('sprites/png/14.png');
-        Game.assets.addRessource('sprites/png/15.png');
-        Game.assets.addRessource('sprites/png/16.png');
         Game.assets.addRessource('sprites/png/cassette_mini.png');
-        Game.assets.addRessource('sprites/png/headphones.png');
         Game.assets.addRessource('sprites/png/tree-stump.png');
         Game.assets.addRessource('sprites/png/tree.png');
         Game.assets.addRessource('sprites/png/rock2.png');
@@ -124,8 +108,6 @@ var Game = {
         Game.assets.addRessource('sprites/png/rock.png');
         Game.assets.addRessource('sprites/png/gold1.png');
         Game.assets.addRessource('sprites/png/Donut_mini.png');
-        //Game.assets.addRessource('sprites/png/musictape.png');
-        //Game.assets.addRessource('sprites/png/betti_1_weich.png');
         Game.assets.addRessource('sprites/png/mountains_0.png');
         Game.assets.addRessource('sprites/png/monument-valley-background.png');
         Game.assets.addRessource('sprites/png/mountains_1.png');
@@ -133,10 +115,10 @@ var Game = {
         Game.assets.addRessource('sprites/png/caveBG.png');
         Game.assets.addRessource('sprites/png/caveBGfront.png');
         Game.assets.addRessource('sprites/png/caveBGback.png');
-        //Game.assets.addRessource('sprites/png/loadingText_bigPic.jpg');
         Game.assets.addRessource('sprites/png/StartButton.png');
         Game.assets.addRessource('sprites/png/trophy.png');
         Game.assets.addRessource('sprites/png/landingPageButton.png');
+
         //Bis hier hin wird das Bild zunächst auf eine Downloadliste gesetzt
         Game.assets.download();
        
