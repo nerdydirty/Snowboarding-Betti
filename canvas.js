@@ -140,8 +140,35 @@ var Game = {
         //Bis hier hin wird das Bild zunächst auf eine Downloadliste gesetzt
         Game.assets.download();
        
+        //Objekte für den Start/Restart auf Werkseinstellungen zurücksetzen
+        Game.initObjects();
+        
         //Spiel starten:
         Game.loop();
+    },
+    initObjects: function(){
+        // SCENES
+        // landingPage nicht notwendig
+        Game.scenes.game.init();
+        Game.scenes.levelCrossing.init();
+        Game.scenes.nextLevel.init();
+        // highscore nicht notwendig
+
+        // ENTITIES
+        Game.entities.forrest.init();
+        Game.entities.snowGround.init();
+        Game.entities.snowEnd.init();
+        Game.entities.caveBGfront.init();
+        Game.entities.betti.init();
+        Game.entities.badElements.init();
+        Game.entities.badRocks.init();
+        Game.entities.goodElements.init();
+
+        // SOUNDS AUF 0 SETZEN - damit sie von neuem Anfangen und nicht dort weiterspielen wo sie aufgehört haben
+        Game.backgroundGamesound.currentTime = 0;
+        Game.backgroundCavesound.currentTime = 0;
+        Game.backgroundGamesound.loop = true;
+        Game.backgroundCavesound.loop = true;
     },
     /*--------------------------------------------------
     ------------>> Render-Methode v. Game <<------------
@@ -217,12 +244,9 @@ var Game = {
         Game.entities.betti.cassetteSound.pause();
     },
     restart: function(){
+        Game.initObjects();
         Game.scenes.current = 'landingPage';
-        Game.entities.badElements.list = new Array();
-        Game.entities.goodElements.list = new Array();
         Game.score = 0;
-        Game.scenes.game.switchNextLevel = false;
-        Game.entities.betti.init();
         Game.loop();
     },
     /*--------------------------------------------------
@@ -303,6 +327,8 @@ var Game = {
             update: function(){
                 if(Game.assets.isDone() == true){
                     console.log('Alle Bilder geladen');
+                    //Bettis Höhe + Breite kann erst jetzt ermittelt werden, wenn das Bild geladen ist
+                    Game.entities.betti.init();
                     Game.scenes.current = 'landingPage';
                 }
             }
@@ -312,9 +338,9 @@ var Game = {
         --------------------------------------------------*/
         landingPage: {
             render: function(){
-                Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#429FDD');
+                //Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#429FDD');
                 //Game.draw.drawRect(0, 650, 1278, 650, '#0E8A3A');
-                //Game.draw.drawImage(Game.assets.getAsset('sprites/png/monument-valley-background.png'), 0,0);
+                Game.draw.drawImage(Game.assets.getAsset('sprites/png/monument-valley-background.png'), 0,0);
                 Game.draw.drawLine(0, 300, 1278, 300, '#FFF');
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_1.png'), Game.entities.betti.x, 255);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_2.png'), Game.entities.betti.x+70,200);
@@ -389,11 +415,13 @@ var Game = {
             }
         },
         /*--------------------Szene-------------------------
-        -------------->> Spielwelt (1. Level) <<------------
+        ----------------->> Game (1. Level) <<--------------
         --------------------------------------------------*/
         game: {
-            step: 3,
-            switchNextLevel: false,
+            init: function (){
+                this.step = 3;
+                this.switchNextLevel = false;
+            },
             render: function(){
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_1.png'), 0, 0);
                 Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#800000');
@@ -439,11 +467,13 @@ var Game = {
         ------------------->> Übergang <<-------------------
         --------------------------------------------------*/
         levelCrossing:{
-            backgroundY: 0,
-            scrollSpeed: 7,
-            scrolling: false,
-            numberOfUpdates: 0,
-            triggerShowSnowEnd: 1,
+            init: function (){
+                this.backgroundY = 0;
+                this.scrollSpeed = 7;
+                this.scrolling = false;
+                this.numberOfUpdates = 0;
+                this.triggerShowSnowEnd = 1;
+            },
             render: function(){
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBGback.png'), 0, this.backgroundY+Game.canvas.height);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_1.png'), 0, this.backgroundY);
@@ -517,11 +547,13 @@ var Game = {
             } 
         },
         /*---------------------Szene------------------------
-        -------------->> Spielwelt (2. Level) <<------------
+        ---------------------->> Level 2 <<-----------------
         --------------------------------------------------*/
         nextLevel:{
-            step: 10, //muss noch verwendet werden um die badRocks zu beschleunigen
-            opacity:1.0,
+            init: function (){
+                this.step = 10; //nuss noch verwendet werden um die badRocks zu beschleunigen -- brauchen wir das noch?
+                this.opacity = 1.0;
+            },
             render: function(){
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBGback.png'), 0, 0);
                 Game.draw.drawText('Punkte: '+ Game.score,10,50,40,'#FFF');
@@ -571,7 +603,9 @@ var Game = {
         ----------------->> Highscoreliste <<---------------
         --------------------------------------------------*/
         highscore:{
-            list: new Array(),
+            init: function (){
+                this.list = [];
+            },
             render: function(){
                 this.landingPageButton();
                 Game.draw.drawRect(0,0,Game.canvas.width, Game.canvas.height, '#455E7F');
@@ -647,8 +681,10 @@ var Game = {
         ------------------->>  Wald 1. Level <<-------------
         --------------------------------------------------*/
         forrest:{
-            x:0,
-            y:419,
+            init: function (){
+                this.x = 0;
+                this.y = 419;
+            },
             render: function(){
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_0.png'), this.x, this.y);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/mountains_0.png'), this.x+1500, this.y);
@@ -664,9 +700,11 @@ var Game = {
         ---------------->> Schneepiste 1. Level <<----------
         --------------------------------------------------*/
         snowGround:{
-            x:0,
-            y:650,
-            step:3,
+            init: function (){
+                this.x = 0;
+                this.y = 650;
+                this.step = 3;
+            },
             render: function(){
                 /*for (var i=0; i<1406; i+=128){
                     Game.draw.drawImage(Game.assets.getAsset('sprites/png/2.png'), this.x+i, 650);
@@ -688,15 +726,16 @@ var Game = {
         --------------->> Schneepisten-Ende <<--------------
         --------------------------------------------------*/
         snowEnd:{
-            x:0,
-            y:650,
-            
-            //Schlucht:
-            canyon:{
-                x:2570,
-                y:650,
-                width:400,
-                height:300
+            init: function (){
+                this.x = 0;
+                this.y = 650;
+                //Schlucht
+                this.canyon = {
+                    x:2570,
+                    y:650,
+                    width:400,
+                    height:300
+                };
             },
             render: function(){
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/snowGround1.png'), this.x, this.y);
@@ -713,7 +752,9 @@ var Game = {
         ---------------->> Höhle v. 2. Level <<-------------
         --------------------------------------------------*/
         caveBGfront:{
-            x:0,
+            init: function (){
+                this.x = 0;
+            },
             render: function(){
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBGfront.png'), this.x,434);
                 Game.draw.drawImage(Game.assets.getAsset('sprites/png/caveBGfront.png'), this.x+1459,434);
@@ -725,14 +766,10 @@ var Game = {
                 }
             }
         },
-        betti:{
-            width: function(){
-                return Game.assets.getAsset('sprites/png/betti_1.png').width;
-            },
-            height: function(){
-                return Game.assets.getAsset('sprites/png/betti_1.png').height;
-            },
+        betti:{ 
             init: function(){
+                this.width = Game.assets.getAsset('sprites/png/betti_1.png').width;
+                this.height = Game.assets.getAsset('sprites/png/betti_1.png').height;
                 this.step = 3;
                 this.x = 100;
                 this.y = 610;
@@ -741,24 +778,8 @@ var Game = {
                 this.landing = false;
                 this.jumpHeight = 180;
             },
-            step: 3,
-            x: 100,
-            y: 610,
-            startY: 610,
-            //gravity: .1, // Schwerkraft
-            //angle: 90,
-            //vy: this.step * Math.sin(this.angle * Math.PI / 180),
-            jumping: false,
-            landing: false,
-            jumpHeight: 180,
-            jump: function(){
-                if(this.landing == false){
-                    Game.entities.betti.jumping = true;
-                    Game.entities.betti.jumpSound.play();
-                }
-            },
             render: function(){
-                //Game.draw.drawRect(Game.entities.betti.x, Game.entities.betti.y, this.width(), this.height(), '#fff');
+                //Game.draw.drawRect(Game.entities.betti.x, Game.entities.betti.y, this.width, this.height, '#fff');
                 
                 if (this.jumping){
                     Game.draw.drawImage(Game.assets.getAsset('sprites/png/betti_2.png'), Game.entities.betti.x, Game.entities.betti.y);
@@ -788,22 +809,28 @@ var Game = {
                 }
                 //Berechnug für das Wiederrunterkommen
                 if (this.landing == true){
-                    
                     this.y += this.step;
                     this.jumpHeight+= this.step;
+
+                    //Berechung Landung auf dem Boden
+                    if(this.y >= this.startY){
+                        this.landing = false;
+                    }
                 }
-                //Berechung Landung auf dem Boden
-                if(this.y == this.startY){
-                    this.landing = false;
+            },
+            jump: function(){
+                if(this.landing == false){
+                    Game.entities.betti.jumping = true;
+                    Game.entities.betti.jumpSound.play();
                 }
             },
             collisionWithElement: function(element){
                 //TODO: Kollisionsberechnung auf Pixelgenau umstellen. Vorerst BoundingBox Methode ausreichend
                 //Grundlage: http://www.virtual-maxim.de/pixelgenaue-kollisionserkennung/
 
-                if((this.x + this.width())<=element.x)
+                if((this.x + this.width)<=element.x)
                     return false;
-                if((this.y + this.height())<=element.y)
+                if((this.y + this.height)<=element.y)
                     return false;
                 if((element.x + element.width)<=this.x)
                     return false;
@@ -834,9 +861,11 @@ var Game = {
             }
         },
         badElements:{
-            list: new Array(),
-            maxBadElements: 2,
-            step: 3,
+            init: function(){
+                this.list = [];
+                this.maxBadElements = 2;
+                this.step = 3;
+            },
             render: function(){
                 //draw list und nicht nur ein element
                 for (var i = 0; i<this.list.length; i++){
@@ -878,10 +907,10 @@ var Game = {
                   badElement.imgUrl = 'sprites/png/rock2.png';  
                 }
                 if (typ == 3){
-                    badElement.imgUrl = 'sprites/png/tree-stump.png'
+                    badElement.imgUrl = 'sprites/png/tree-stump.png';
                 }
                 if (typ == 4){
-                    badElement.imgUrl = 'sprites/png/tree.png'
+                    badElement.imgUrl = 'sprites/png/tree.png';
                 }
                 if (this.list.length == 0){
                     badElement.x = Game.canvas.width+10;
@@ -915,9 +944,11 @@ var Game = {
             },
         },
         badRocks:{
-            list: new Array(),
-            maxBadRocks: 2,
-            step: 5,
+            init: function(){
+                this.list = [];
+                this.maxBadRocks = 2;
+                this.step = 5;
+            },
             render: function(){
                 //draw list und nicht nur ein element
                 for (var i = 0; i<this.list.length; i++){
@@ -999,9 +1030,11 @@ var Game = {
             },
         },
         goodElements:{
-            list: new Array(),
-            maxGoodElements: 3,
-            step: 4,
+            init: function(){
+                this.list = [];
+                this.maxGoodElements = 3;
+                this.step = 4;
+            },
             render: function(){
                 //draw list und nicht nur ein element
                 for (var i = 0; i<this.list.length; i++){
@@ -1078,7 +1111,7 @@ var Game = {
     },
     //Mausklick + Tastatureingaben:
     input: {
-        /* Verarbeitung von Click auf der Canvas - wird aktuell nicht benötigt
+        /* Verarbeitung von Click auf der Canvas - wird aktuell nicht benötigt (Ausblick)
         x: 0,
         y: 0,
         clicked: false,
